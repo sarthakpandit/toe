@@ -12,9 +12,9 @@ defines
 assets
 {
 	(../data)
-	./menu/Steinerlight.ttf
+	./menu/font.ttf
 	(../data-ram/data-gles1)
-	#./world_group.group.bin
+	./menu/mainmenu.group.bin
 }
 
 files

@@ -7,46 +7,7 @@ using namespace TinyOpenEngine;
 
 namespace TinyOpenEngine
 {
-	typedef const char* TOE_CHAR_Z;
-
-	int32 ExtractUtfCode(TOE_CHAR_Z & c)
-	{
-		if (!*c)
-			return -1;
-		int32 r = (uint8)*c;
-		++c;
-		if (0==(r & 0x080))
-			return r;
-		if (0x0C0 == (r & 0x0E0))
-		{
-			r = r&0x01F;
-			r = (r<<6) | (0x3F&(uint8)*c);
-			++c;
-		}
-		else if (0x0E0 == (r & 0x0F0))
-		{
-			r = r&0x0F;
-			r = (r<<6) | (0x3F&(uint8)*c);
-			++c;
-			r = (r<<6) | (0x3F&(uint8)*c);
-			++c;
-		}
-		else if (0x0F0 == (r & 0x0F8))
-		{
-			r = r&0x07;
-			r = (r<<6) | (0x3F&(uint8)*c);
-			++c;
-			r = (r<<6) | (0x3F&(uint8)*c);
-			++c;
-		}
-		return r;
-	}
-	bool IsWhiteSpace(int32 code)
-	{
-		if (code == ' ' || code == '\t')
-			return true;
-		return false;
-	}
+	
 }
 
 //Instantiate the default factory function for a named class 
@@ -58,6 +19,10 @@ IW_MANAGED_IMPLEMENT(CtoeSimpleMenuTextBlock);
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
 {
 	utf8string = 0;
+	glyphColor[0].Set(0xFFFFFFFF);
+	glyphColor[1].Set(0xFFFFFFFF);
+	glyphColor[2].Set(0xFFFFFFFF);
+	glyphColor[3].Set(0xFFFFFFFF);
 }
 //Desctructor
 CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
@@ -72,7 +37,7 @@ CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuTextBlock::Serialise ()
 {
-	CtoeSimpleMenuItem::Serialise();
+	CtoeSimpleMenuTerminalItem::Serialise();
 	size_t len = 0;
 	if (IwSerialiseIsReading())
 	{
@@ -99,64 +64,21 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 }
 void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
-	cachedGlyphs.clear();
-	totalGlyphs = 0;
-	int16 xPos=IwGxGetScreenWidth()/2;
-	int16 yPos=10;
-	bool leftToRight = true;
-	if (utf8string > 0)
+	int16 contentWidth = width - GetMarginLeft() - GetMarginRight() - GetPaddingLeft() - GetPaddingRight();
+	CtoeFreeTypeFont* f = renderContext->font;
+	CIwArray<CtoeFreeTypeGlyphLayout> layout;
+	layoutData.origin = CIwSVec2::g_Zero;
+	layoutData.size.x = contentWidth;
+	layoutData.size.y = renderContext->fontSize;
+	layoutData.textAlignment = 0;//IW_GEOM_ONE/3;
+	layoutData.isRightToLeft = false;//CtoeFreeTypeFont::IsRightToLeft();
+	if (utf8string)
 	{
-		CtoeFreeTypeFont* f = renderContext->font;
-		const char* c = utf8string;
-		bool newWord = true;
-		while (*c)
-		{
-			int32 code = ExtractUtfCode(c);
-			if (code < 0) break;
-			if (IsWhiteSpace(code))
-			{
-				newWord = true;
-				continue;
-			}
-			if (code == '\n')
-			{
-				xPos =IwGxGetScreenWidth()/2;
-				yPos += 32;
-				newWord = true;
-			}
-			bool isCurrentleftToRight = CtoeFreeTypeFont::IsRightToLeft(code);
-			newWord |= isCurrentleftToRight!=leftToRight;
-			leftToRight = isCurrentleftToRight;
-			CtoeFreeTypeGlyph* glyph = f->GetGlyph(code, renderContext->fontSize);
-			if (glyph)
-			{
-				if (newWord)
-				{
-					cachedGlyphs.push_back();
-					newWord = false;
-				}
-				cachedGlyphs.back().push_back();
-				CtoeCachedGlyphData & g = cachedGlyphs.back().back();
-				g.texture = glyph->texture;
-				g.uv.x = glyph->x*IW_GEOM_ONE/TOE_GLYPHATLASSIZE;
-				g.uv.y = glyph->y*IW_GEOM_ONE/TOE_GLYPHATLASSIZE;
-				g.uvSize.x = (glyph->width)*IW_GEOM_ONE/TOE_GLYPHATLASSIZE;
-				g.uvSize.y = (glyph->height)*IW_GEOM_ONE/TOE_GLYPHATLASSIZE;
-				g.stepX = glyph->width;
-				g.stepY = glyph->height;
-				if (glyph->advance.x < 0)
-					xPos+=glyph->advance.x;
-				g.pos.x = xPos+glyph->offset.x;
-				g.pos.y = yPos+glyph->offset.y;
-				g.size.x = glyph->width;
-				g.size.y = glyph->height;
-				if (glyph->advance.x > 0)
-					xPos+=glyph->advance.x;
-				++totalGlyphs;
-			}
-		}
+		f->LayoutGlyphs(utf8string, layoutData);
 	}
 
+	size.x = width;
+	size.y = layoutData.actualSize.y + GetMarginTop()+GetMarginBottom()+GetPaddingTop()+GetPaddingBottom();
 }
 //Render image on the screen surface
 void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
@@ -164,32 +86,9 @@ void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 	if (totalGlyphs == 0)
 		return;
 
-	int index = 0;
-	CIwMaterial* m=0;
-	CIwTexture* prevTex=0;
-	IwGxLightingOff();
-	for (CIwArray<CIwArray<CtoeCachedGlyphData> >::iterator word=cachedGlyphs.begin(); word!=cachedGlyphs.end();++word)
-	{
-		for (CIwArray<CtoeCachedGlyphData>::iterator glyph=word->begin(); glyph!=word->end();++glyph)
-		{
-			if (prevTex != glyph->texture)
-			{
-				prevTex = glyph->texture;
-				m = IW_GX_ALLOC_MATERIAL();
-				m->SetTexture(prevTex);
-				m->SetColEmissive(255,255,255,255);
-				m->SetColDiffuse(255,255,255,255);
-				m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
-				IwGxSetMaterial(m);
-			}
-			static CIwColour col[4];
-			col[0].Set(0xFFFFFFFF);
-			col[1].Set(0xFFFFFFFF);
-			col[2].Set(0xFFFFFFFF);
-			col[3].Set(0xFFFFFFFF);
-			IwGxDrawRectScreenSpace (&glyph->pos,&glyph->size,&glyph->uv,&glyph->uvSize,col);
-		}
-	}
+	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
+	layoutData.RenderAt(p);
+	
 }
 #ifdef IW_BUILD_RESOURCES
 
@@ -201,7 +100,7 @@ bool	CtoeSimpleMenuTextBlock::ParseAttribute(CIwTextParserITX* pParser, const ch
 		utf8string = pParser->ReadString();
 		return true;
 	}
-	return CtoeSimpleMenuItem::ParseAttribute(pParser, pAttrName);
+	return CtoeSimpleMenuTerminalItem::ParseAttribute(pParser, pAttrName);
 }
 
 #endif

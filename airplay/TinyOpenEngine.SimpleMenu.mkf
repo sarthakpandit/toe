@@ -1,0 +1,35 @@
+includepaths
+{
+	"h"
+}
+files
+{
+	[src]
+	("src")
+	TinyOpenEngine.SimpleMenu.cpp
+	toeSimpleMenu.cpp
+	toeSimpleMenuBackground.cpp
+	toeSimpleMenuImage.cpp
+	toeSimpleMenuItem.cpp
+	toeSimpleMenuRoot.cpp
+	toeSimpleMenuStyle.cpp
+	toeSimpleMenuTerminalItem.cpp 
+	toeSimpleMenuTextBlock.cpp 
+
+	[h]
+	("h")
+	TinyOpenEngine.SimpleMenu.h
+	toeSimpleMenu.h
+	toeSimpleMenuBackground.h
+	toeSimpleMenuImage.h
+	toeSimpleMenuItem.h
+	toeSimpleMenuRoot.h
+	toeSimpleMenuStyle.h
+	toeSimpleMenuTerminalItem.h
+	toeSimpleMenuTextBlock.h
+}
+subprojects
+{
+	./TinyOpenEngine.mkf
+	./TinyOpenEngine.FreeType.mkf
+}
