@@ -2,32 +2,35 @@
 
 #include <IwResManager.h>
 #include <IwManagedList.h>
-#include "toeSimpleMenuTerminalItem.h"
+#include <toeFreeTypeFont.h>
 
 namespace TinyOpenEngine
 {
-	class CtoeSimpleMenuBackground : public CtoeSimpleMenuTerminalItem
+	struct toeSimpleMenuBackgroundGradientPoint
 	{
-	private:
-		CIwColour colour;
+		CIwColour Colour;
+		CtoeLength Position;
+	};
+	class CtoeSimpleMenuBackground: public CIwManaged
+	{
+	protected:
+		uint32 textureHash;
+		CIwTexture* texture;
+		CIwArray<toeSimpleMenuBackgroundGradientPoint> points;
 	public:
-		//Declare managed class
-		IW_MANAGED_DECLARE(CtoeSimpleMenuBackground);
 		//Constructor
 		CtoeSimpleMenuBackground();
 		//Desctructor
 		virtual ~CtoeSimpleMenuBackground();
 
-		//Reads/writes a binary file using @a IwSerialise interface.
-		virtual void Serialise ();
+		virtual void Serialise();
 
-		virtual void Prepare(toeSimpleMenuItemContext* renderContext,int16 width);
-		//Render image on the screen surface
-		virtual void Render(toeSimpleMenuItemContext* renderContext);
-
+		void Render(const CIwSVec2& origin, const CIwSVec2& size);
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: parses attribute/value pair.
 		virtual	bool	ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName);
+
+		virtual	void	ParseClose(CIwTextParserITX* pParser);
 #endif
 	};
 }

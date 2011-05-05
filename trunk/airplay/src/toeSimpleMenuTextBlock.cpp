@@ -19,10 +19,7 @@ IW_MANAGED_IMPLEMENT(CtoeSimpleMenuTextBlock);
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
 {
 	utf8string = 0;
-	glyphColor[0].Set(0xFFFFFFFF);
-	glyphColor[1].Set(0xFFFFFFFF);
-	glyphColor[2].Set(0xFFFFFFFF);
-	glyphColor[3].Set(0xFFFFFFFF);
+	textAlignment = 0;
 }
 //Desctructor
 CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
@@ -38,6 +35,8 @@ CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
 void CtoeSimpleMenuTextBlock::Serialise ()
 {
 	CtoeSimpleMenuTerminalItem::Serialise();
+	IwSerialiseInt32(textAlignment);
+	style.Serialise();
 	size_t len = 0;
 	if (IwSerialiseIsReading())
 	{
@@ -64,13 +63,16 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 }
 void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
+	CombineStyle(renderContext);
+	CtoeFreeTypeFont* f = combinedStyle.Font;
+	if (!f)
+		return;
 	int16 contentWidth = width - GetMarginLeft() - GetMarginRight() - GetPaddingLeft() - GetPaddingRight();
-	CtoeFreeTypeFont* f = renderContext->font;
 	CIwArray<CtoeFreeTypeGlyphLayout> layout;
 	layoutData.origin = CIwSVec2::g_Zero;
 	layoutData.size.x = contentWidth;
-	layoutData.size.y = renderContext->fontSize;
-	layoutData.textAlignment = 0;//IW_GEOM_ONE/3;
+	layoutData.size.y = combinedStyle.FontSize.GetPx(width);
+	layoutData.textAlignment = textAlignment;//IW_GEOM_ONE/3;
 	layoutData.isRightToLeft = false;//CtoeFreeTypeFont::IsRightToLeft();
 	if (utf8string)
 	{
@@ -83,11 +85,9 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 //Render image on the screen surface
 void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 {
-	if (totalGlyphs == 0)
-		return;
-
+	combinedStyle.Background.Render(GetOrigin()+CIwSVec2(GetMarginLeft(),GetMarginTop()), GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight(),GetMarginTop()+GetMarginBottom()));
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
-	layoutData.RenderAt(p);
+	layoutData.RenderAt(p,combinedStyle.FontColor);
 	
 }
 #ifdef IW_BUILD_RESOURCES
@@ -98,6 +98,11 @@ bool	CtoeSimpleMenuTextBlock::ParseAttribute(CIwTextParserITX* pParser, const ch
 	if (!stricmp("text",pAttrName))
 	{
 		utf8string = pParser->ReadString();
+		return true;
+	}
+	if (!stricmp("textAlignment",pAttrName))
+	{
+		pParser->ReadFixed(&textAlignment);
 		return true;
 	}
 	return CtoeSimpleMenuTerminalItem::ParseAttribute(pParser, pAttrName);
