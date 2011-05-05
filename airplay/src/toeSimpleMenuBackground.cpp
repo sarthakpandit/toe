@@ -13,63 +13,131 @@ namespace TinyOpenEngine
 //Instantiate the default factory function for a named class 
 IW_CLASS_FACTORY(CtoeSimpleMenuBackground);
 //This macro is required within some source file for every class derived from CIwManaged. It implements essential functionality
-IW_MANAGED_IMPLEMENT(CtoeSimpleMenuBackground);
+//IW_MANAGED_IMPLEMENT(CtoeSimpleMenuBackground);
+
 
 //Constructor
 CtoeSimpleMenuBackground::CtoeSimpleMenuBackground()
 {
-	colour.Set(0x000000FF);
+	textureHash = 0;
+	texture = 0;
 }
 //Desctructor
 CtoeSimpleMenuBackground::~CtoeSimpleMenuBackground()
 {
 }
 
-//Reads/writes a binary file using @a IwSerialise interface.
-void CtoeSimpleMenuBackground::Serialise ()
+void CtoeSimpleMenuBackground::Serialise()
 {
-	CtoeSimpleMenuTerminalItem::Serialise();
-	colour.Serialise();
-	
+	CIwManaged::Serialise();
+	IwSerialiseUInt32(textureHash);
+	if (textureHash && IwSerialiseIsReading())
+		texture = (CIwTexture*)IwGetResManager()->GetResHashed(textureHash,"CIwTexture");
+	points.SerialiseHeader();
+	for (uint32 i=0; i<points.size(); ++i)
+	{
+		points[i].Colour.Serialise();
+		points[i].Position.Serialise();
+	}
 }
-void CtoeSimpleMenuBackground::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
-{
-	CtoeSimpleMenuTerminalItem::Prepare(renderContext,width);
-}
-//Render image on the screen surface
-void CtoeSimpleMenuBackground::Render(toeSimpleMenuItemContext* renderContext)
-{
-	CIwSVec2* vec = IW_GX_ALLOC(CIwSVec2, 4);
-	CIwSVec2 s = GetSize();
-	vec[0] = GetOrigin()+CIwSVec2(GetMarginLeft(),GetMarginTop());
-	vec[1] = GetOrigin()+CIwSVec2(GetMarginLeft(),s.y-GetMarginTop()-GetMarginBottom());
-	vec[2] = GetOrigin()+CIwSVec2(s.x-GetMarginLeft()-GetMarginRight(),s.y-GetMarginTop()-GetMarginBottom());
-	vec[3] = GetOrigin()+CIwSVec2(s.x-GetMarginLeft()-GetMarginRight(),GetMarginTop());
-	IwGxSetVertStreamScreenSpace(vec,4);
-	IwGxSetColStream(0);
-	CIwMaterial * m = IW_GX_ALLOC_MATERIAL();
-	m->SetColEmissive(255,255,255,255);
-	m->SetColDiffuse(255,255,255,255);
-	m->SetColAmbient(colour.r,colour.g,colour.b,colour.a);
-	if (colour != 255)
-		m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
-	IwGxSetMaterial(m);
-	IwGxDrawPrims(IW_GX_QUAD_LIST,0,4);
-	CtoeSimpleMenuTerminalItem::Render(renderContext);
-}
-#ifdef IW_BUILD_RESOURCES
 
+void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& size)
+{
+	if (points.size() == 0)
+		return;
+	uint32 vertices = (points.size()+1)*2;
+	CIwSVec2* v = IW_GX_ALLOC(CIwSVec2,vertices);
+	CIwSVec2* uv = IW_GX_ALLOC(CIwSVec2,vertices);
+	CIwColour* col =IW_GX_ALLOC(CIwColour,vertices);
+	uint16* indices = IW_GX_ALLOC(uint16,points.size()*4);
+	CIwMaterial* m = IW_GX_ALLOC_MATERIAL();
+	if (texture)
+		m->SetTexture(texture);
+	m->SetColAmbient(255,255,255,255);
+	IwGxSetMaterial(m);
+	uint32 numIndices = 0;
+	uint32 numP = 0;
+	
+	for (uint32 i=0; i<points.size(); ++i)
+	{
+		int32 h = points[i].Position.GetPx(size.y);
+		indices[numIndices] = numP;
+		++numIndices;
+		indices[numIndices] = numP+2;
+		++numIndices;
+		indices[numIndices] = numP+3;
+		++numIndices;
+		indices[numIndices] = numP+1;
+		++numIndices;
+
+		v[numP].x = origin.x;
+		v[numP].y = origin.y+h;
+		uv[numP].x = 0;
+		uv[numP].y = h*IW_GEOM_ONE/size.y;
+		col[numP] = points[i].Colour;
+		++numP;
+		v[numP].x = origin.x+size.x;
+		v[numP].y = origin.y+h;
+		uv[numP].x = IW_GEOM_ONE;
+		uv[numP].y = h*IW_GEOM_ONE/size.y;
+		col[numP] = points[i].Colour;
+		++numP;
+	}
+	v[numP].x = origin.x;
+	v[numP].y = origin.y+size.y;
+	uv[numP].x = 0;
+	uv[numP].y = IW_GEOM_ONE;
+	col[numP] = points.back().Colour;
+	++numP;
+	v[numP].x = origin.x+size.x;
+	v[numP].y = origin.y+size.y;
+	uv[numP].x = IW_GEOM_ONE;
+	uv[numP].y = IW_GEOM_ONE;
+	col[numP] = points.back().Colour;
+	++numP;
+	IwGxSetVertStreamScreenSpace(v,vertices);
+	IwGxSetUVStream(uv);
+	IwGxSetColStream(col);
+	if (numIndices > 0)
+		IwGxDrawPrims(IW_GX_QUAD_LIST, indices, numIndices);
+}
+
+#ifdef IW_BUILD_RESOURCES
 //Parses from text file: parses attribute/value pair.
 bool	CtoeSimpleMenuBackground::ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName)
 {
-	if (!stricmp("colour",pAttrName))
+	if (!stricmp("color", pAttrName) || !stricmp("colour", pAttrName))
 	{
 		uint8 c[4];
 		pParser->ReadUInt8Array(c,4);
-		colour.Set(c[0],c[1],c[2],c[3]);
+		CIwColour col;
+		col.Set(c[0],c[1],c[2],c[3]);
+		points.push_back();
+		points.back().Colour = col;
+		points.back().Position.Value = 0;
 		return true;
 	}
-	return CtoeSimpleMenuTerminalItem::ParseAttribute(pParser, pAttrName);
+	if (!stricmp("point", pAttrName))
+	{
+		uint8 c[4];
+		pParser->ReadUInt8Array(c,4);
+		CIwColour col;
+		col.Set(c[0],c[1],c[2],c[3]);
+
+		points.push_back();
+		points.back().Colour = col;
+		points.back().Position.ParseAttribute(pParser);
+		return true;
+	}
+	if (!stricmp("texture", pAttrName))
+	{
+		pParser->ReadStringHash(&textureHash);
+		return true;
+	}
+	return CIwManaged::ParseAttribute(pParser, pAttrName);
 }
 
+void	CtoeSimpleMenuBackground::ParseClose(CIwTextParserITX* pParser)
+{
+}
 #endif

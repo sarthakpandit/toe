@@ -2,31 +2,36 @@
 
 #include <IwResManager.h>
 #include <IwManagedList.h>
-#include "toeSimpleMenuStyleSheet.h"
-
+#include <toeSimpleMenuStyle.h>
+#define TOE_ANYSTYLE (0x0002b5cf)
 namespace TinyOpenEngine
 {
-	class CtoeSimpleMenuRoot : public CIwResource
+	struct toeSimpleMenuStyleSheetItem
+	{
+		uint32 NameHash;
+		uint32 ClassHash;
+		uint32 StateHash;
+		uint32 Index;
+	};
+	class CtoeSimpleMenuStyleSheet : public CIwResource
 	{
 	protected:
 		CIwManagedList childItems;
-		uint32 styleSheetHash;
-		CtoeSimpleMenuStyle style;
-		CtoeSimpleMenuStyleSheet* styleSheet;
+		CIwArray<toeSimpleMenuStyleSheetItem> map;
+		CIwArray<CtoeSimpleMenuStyle> styles;
 	public:
 		//Declare managed class
-		IW_MANAGED_DECLARE(CtoeSimpleMenuRoot);
+		IW_MANAGED_DECLARE(CtoeSimpleMenuStyleSheet);
 		//Constructor
-		CtoeSimpleMenuRoot();
+		CtoeSimpleMenuStyleSheet();
 		//Desctructor
-		virtual ~CtoeSimpleMenuRoot();
+		virtual ~CtoeSimpleMenuStyleSheet();
 
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
-		//Render image on the screen surface
-		void Render();
 
-		void AlignBlocks();
+		void Apply(CtoeSimpleMenuStyleSettings* other, uint32,uint32,uint32);
+
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);
@@ -40,16 +45,16 @@ namespace TinyOpenEngine
 	};
 
 #ifdef IW_BUILD_RESOURCES
-	class CtoeSimpleMenuRootResHandler : public CIwResHandler
+	class CtoeSimpleMenuStyleSheetResHandler : public CIwResHandler
 	{
 	public:
 		//Declare managed class
-		IW_MANAGED_DECLARE(CtoeSimpleMenuRootResHandler);
+		IW_MANAGED_DECLARE(CtoeSimpleMenuStyleSheetResHandler);
 
 		//Constructor
-		CtoeSimpleMenuRootResHandler();
+		CtoeSimpleMenuStyleSheetResHandler();
 		//Desctructor
-		virtual ~CtoeSimpleMenuRootResHandler();
+		virtual ~CtoeSimpleMenuStyleSheetResHandler();
 
 		//Buid resource method
 		virtual CIwResource*	Build(const CIwStringL& pathname);

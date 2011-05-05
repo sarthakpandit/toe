@@ -29,6 +29,10 @@ CtoeSimpleMenuImage::CtoeSimpleMenuImage()
 	rectColour[1].Set(0xFFFFFFFF);
 	rectColour[2].Set(0xFFFFFFFF);
 	rectColour[3].Set(0xFFFFFFFF);
+
+	styleSheetHash = 0;
+	styleSheet = 0;
+
 }
 //Desctructor
 CtoeSimpleMenuImage::~CtoeSimpleMenuImage()
@@ -50,7 +54,7 @@ void CtoeSimpleMenuImage::Prepare(toeSimpleMenuItemContext* renderContext,int16 
 	if (!material)
 	{
 		texture = (CIwTexture*)IwGetResManager()->GetResHashed(textureHash, IW_GX_RESTYPE_TEXTURE);
-		CIwImage::Format f = texture->GetFormat();
+		//CIwImage::Format f = texture->GetFormat();
 		material = new CIwMaterial();
 		material->SetTexture(texture);
 	}
@@ -97,6 +101,11 @@ bool	CtoeSimpleMenuImage::ParseAttribute(CIwTextParserITX* pParser, const char* 
 	if (!stricmp("texture",pAttrName))
 	{
 		pParser->ReadStringHash(&textureHash);
+		return true;
+	}
+	if (!stricmp("styleSheet",pAttrName))
+	{
+		pParser->ReadStringHash(&styleSheetHash);
 		return true;
 	}
 	return CtoeSimpleMenuTerminalItem::ParseAttribute(pParser, pAttrName);

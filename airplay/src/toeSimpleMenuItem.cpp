@@ -20,8 +20,6 @@ CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 {
 	origin = CIwSVec2::g_Zero;
 	size = CIwSVec2::g_Zero;
-	margin= CIwSVec4::g_Zero;
-	padding= CIwSVec4::g_Zero;
 }
 //Desctructor
 CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
@@ -36,19 +34,22 @@ void CtoeSimpleMenuItem::Serialise ()
 	childItems.Serialise();
 	origin.Serialise();
 	size.Serialise();
-	margin.Serialise();
-	padding.Serialise();
+	style.Serialise();
 }
 
 void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
+	CombineStyle(renderContext);
+	toeSimpleMenuItemContext context = *renderContext;
+	context.parentStyle = &combinedStyle;
+
 	int16 contentWidth = width - GetMarginLeft() - GetMarginRight() - GetPaddingLeft() - GetPaddingRight();
 	size.x = width;
 	size.y = 0;
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		item->Prepare(renderContext,contentWidth);
+		item->Prepare(&context,contentWidth);
 		size.y += item->GetSize().y;
 	}
 	RearrangeChildItems();
@@ -68,12 +69,38 @@ void CtoeSimpleMenuItem::RearrangeChildItems()
 //Render image on the screen surface
 void CtoeSimpleMenuItem::Render(toeSimpleMenuItemContext* renderContext)
 {
+	toeSimpleMenuItemContext context = *renderContext;
+	context.parentStyle = &combinedStyle;
+
+	combinedStyle.Background.Render(GetOrigin()+CIwSVec2(GetMarginLeft(),GetMarginTop()), GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight(),GetMarginTop()+GetMarginBottom()));
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		item->Render(renderContext);
+		item->Render(&context);
 	}
 }
+void CtoeSimpleMenuItem::CombineStyle(toeSimpleMenuItemContext* renderContext)
+{
+	InheritStyle(renderContext->parentStyle);
+	ApplyStyleSheet(renderContext->styleSheet);
+	ApplyStyle(&style);
+}
+void CtoeSimpleMenuItem::InheritStyle(CtoeSimpleMenuStyleSettings* parentSettings)
+{
+	combinedStyle.Inherit(parentSettings);
+}
+void CtoeSimpleMenuItem::ApplyStyleSheet(CtoeSimpleMenuStyleSheet* styleSheet)
+{
+	if (styleSheet)
+		styleSheet->Apply(&combinedStyle,GetElementNameHash(),GetElementClassHash(),GetElementStateHash());
+}
+void CtoeSimpleMenuItem::ApplyStyle(CtoeSimpleMenuStyle* style)
+{
+	style->Apply(&combinedStyle);
+}
+uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
+uint32 CtoeSimpleMenuItem::GetElementClassHash() { return TOE_ANYSTYLE; }
+uint32 CtoeSimpleMenuItem::GetElementStateHash() { return TOE_ANYSTYLE; }
 
 #ifdef IW_BUILD_RESOURCES
 //Parses from text file: start block.
@@ -86,56 +113,9 @@ void	CtoeSimpleMenuItem::ParseOpen(CIwTextParserITX* pParser)
 //Parses from text file: parses attribute/value pair.
 bool	CtoeSimpleMenuItem::ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName)
 {
-	if (!stricmp("margin", pAttrName))
+	if (!stricmp("style", pAttrName))
 	{
-		pParser->ReadInt16(&margin.x);
-		margin.y = margin.z = margin.w = margin.x;
-		return true;
-	}
-	if (!stricmp("margin-left", pAttrName))
-	{
-		pParser->ReadInt16(&margin.x);
-		return true;
-	}
-	if (!stricmp("margin-right", pAttrName))
-	{
-		pParser->ReadInt16(&margin.z);
-		return true;
-	}
-	if (!stricmp("margin-top", pAttrName))
-	{
-		pParser->ReadInt16(&margin.y);
-		return true;
-	}
-	if (!stricmp("margin-bottom", pAttrName))
-	{
-		pParser->ReadInt16(&margin.w);
-		return true;
-	}
-	if (!stricmp("padding", pAttrName))
-	{
-		pParser->ReadInt16(&padding.x);
-		padding.y = padding.z = padding.w = padding.x;
-		return true;
-	}
-	if (!stricmp("padding-left", pAttrName))
-	{
-		pParser->ReadInt16(&padding.x);
-		return true;
-	}
-	if (!stricmp("padding-right", pAttrName))
-	{
-		pParser->ReadInt16(&padding.z);
-		return true;
-	}
-	if (!stricmp("padding-top", pAttrName))
-	{
-		pParser->ReadInt16(&padding.y);
-		return true;
-	}
-	if (!stricmp("padding-bottom", pAttrName))
-	{
-		pParser->ReadInt16(&padding.w);
+		pParser->PushObject(&style);
 		return true;
 	}
 	return CIwManaged::ParseAttribute(pParser, pAttrName);
@@ -144,6 +124,8 @@ bool	CtoeSimpleMenuItem::ParseAttribute(CIwTextParserITX* pParser, const char* p
 void	CtoeSimpleMenuItem::ParseCloseChild(CIwTextParserITX* pParser, CIwManaged* pChild)
 {
 	//CIwManaged::ParseCloseChild(pParser, pChild);
+	if (&style == (CtoeSimpleMenuStyle*)pChild)
+		return;
 	childItems.Add(pChild);
 }
 #endif

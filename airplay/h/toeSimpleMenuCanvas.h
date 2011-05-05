@@ -2,31 +2,20 @@
 
 #include <IwResManager.h>
 #include <IwManagedList.h>
-#include "toeSimpleMenuTerminalItem.h"
+#include "toeSimpleMenuItem.h"
 
 namespace TinyOpenEngine
 {
-	class CtoeSimpleMenuImage : public CtoeSimpleMenuTerminalItem
+	class CtoeSimpleMenuCanvas : public CtoeSimpleMenuItem
 	{
 	private:
-		uint32 textureHash;
-		CIwTexture* texture;
-		CIwMaterial* material;
-		CIwSVec2 rectPos;
-		CIwSVec2 rectSize;
-		CIwSVec2 rectUV;
-		CIwSVec2 rectUVSize;
-		CIwColour rectColour[4];
-
-		uint32 styleSheetHash;
-		CtoeSimpleMenuStyleSheet* styleSheet;
 	public:
 		//Declare managed class
-		IW_MANAGED_DECLARE(CtoeSimpleMenuImage);
+		IW_MANAGED_DECLARE(CtoeSimpleMenuCanvas);
 		//Constructor
-		CtoeSimpleMenuImage();
+		CtoeSimpleMenuCanvas();
 		//Desctructor
-		virtual ~CtoeSimpleMenuImage();
+		virtual ~CtoeSimpleMenuCanvas();
 
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
@@ -35,7 +24,6 @@ namespace TinyOpenEngine
 		//Render image on the screen surface
 		virtual void Render(toeSimpleMenuItemContext* renderContext);
 
-		virtual void RearrangeChildItems();
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: parses attribute/value pair.
 		virtual	bool	ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName);

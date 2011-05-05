@@ -4,17 +4,17 @@
 #include <IwManagedList.h>
 
 #include <toeFreeTypeFont.h>
+#include <toeSimpleMenuStyle.h>
+#include <toeSimpleMenuStyleSheet.h>
 
 namespace TinyOpenEngine
 {
 	struct toeSimpleMenuItemContext
 	{
-		CtoeFreeTypeFont* font;
-		int32 fontSize;
+		CtoeSimpleMenuStyleSettings* parentStyle;
+		CtoeSimpleMenuStyleSheet* styleSheet;
 
-		toeSimpleMenuItemContext():font(0),fontSize(16)
-		{
-		}
+		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0){};
 	};
 
 	class CtoeSimpleMenuItem : public CIwManaged
@@ -23,8 +23,11 @@ namespace TinyOpenEngine
 		CIwManagedList childItems;
 		CIwSVec2 origin;
 		CIwSVec2 size;
-		CIwSVec4 margin;
-		CIwSVec4 padding;
+		//CIwSVec4 margin;
+		//CIwSVec4 padding;
+
+		CtoeSimpleMenuStyle style;
+		CtoeSimpleMenuStyleSettings combinedStyle;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuItem);
@@ -48,16 +51,23 @@ namespace TinyOpenEngine
 
 		virtual void RearrangeChildItems();
 
-		inline int16 GetMarginLeft()const {return margin.x;}
-		inline int16 GetMarginTop()const {return margin.y;}
-		inline int16 GetMarginRight()const {return margin.z;}
-		inline int16 GetMarginBottom()const {return margin.w;}
+		inline int16 GetMarginLeft()const {return combinedStyle.Margin.x;}
+		inline int16 GetMarginTop()const {return combinedStyle.Margin.y;}
+		inline int16 GetMarginRight()const {return combinedStyle.Margin.z;}
+		inline int16 GetMarginBottom()const {return combinedStyle.Margin.w;}
 
-		inline int16 GetPaddingLeft()const {return padding.x;}
-		inline int16 GetPaddingTop()const {return padding.y;}
-		inline int16 GetPaddingRight()const {return padding.z;}
-		inline int16 GetPaddingBottom()const {return padding.w;}
+		inline int16 GetPaddingLeft()const {return combinedStyle.Padding.x;}
+		inline int16 GetPaddingTop()const {return combinedStyle.Padding.y;}
+		inline int16 GetPaddingRight()const {return combinedStyle.Padding.z;}
+		inline int16 GetPaddingBottom()const {return combinedStyle.Padding.w;}
 
+		void CombineStyle(toeSimpleMenuItemContext* renderContext);
+		virtual void InheritStyle(CtoeSimpleMenuStyleSettings* parentSettings);
+		virtual void ApplyStyleSheet(CtoeSimpleMenuStyleSheet* styleSheet);
+		virtual void ApplyStyle(CtoeSimpleMenuStyle* style);
+		virtual uint32 GetElementNameHash();
+		virtual uint32 GetElementClassHash();
+		virtual uint32 GetElementStateHash();
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);

@@ -31,13 +31,21 @@ void CtoeSimpleMenuRoot::Serialise ()
 {
 	CIwResource::Serialise();
 	childItems.Serialise();
+	style.Serialise();
+	IwSerialiseUInt32(styleSheetHash);
+	if (IwSerialiseIsReading())
+	{
+		styleSheet = (CtoeSimpleMenuStyleSheet*)IwGetResManager()->GetResHashed(styleSheetHash,"CtoeSimpleMenuStyleSheet");
+	}
 }
 //Render image on the screen surface
 void CtoeSimpleMenuRoot::Render()
 {
 	toeSimpleMenuItemContext renderContext;
+	renderContext.parentStyle = &style.settings;
+	renderContext.styleSheet = styleSheet;
 	//renderContext.font = (CtoeFreeTypeFont*)IwGetResManager()->GetResNamed("Steinerlight","CtoeFreeTypeFont");
-	renderContext.font = (CtoeFreeTypeFont*)IwGetResManager()->GetResNamed("font","CtoeFreeTypeFont");
+	//renderContext.font = (CtoeFreeTypeFont*)IwGetResManager()->GetResNamed("font","CtoeFreeTypeFont");
 	int16 w = IwGxGetScreenWidth();
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
@@ -89,6 +97,16 @@ void	CtoeSimpleMenuRoot::ParseOpen(CIwTextParserITX* pParser)
 //Parses from text file: parses attribute/value pair.
 bool	CtoeSimpleMenuRoot::ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName)
 {
+	if (!stricmp("styleSheet",pAttrName))
+	{
+		pParser->ReadStringHash(&styleSheetHash);
+		return true;
+	}
+	if (!stricmp("style",pAttrName))
+	{
+		pParser->PushObject(&style);
+		return true;
+	}
 	return CIwResource::ParseAttribute(pParser, pAttrName);
 }
 //Parses from text file: end block.
@@ -99,6 +117,8 @@ void	CtoeSimpleMenuRoot::ParseClose(CIwTextParserITX* pParser)
 //Extends CIwParseable interface with this extra function: called on any "parent" object, if the "child" has not implemented ParseClose.
 void	CtoeSimpleMenuRoot::ParseCloseChild(CIwTextParserITX* pParser, CIwManaged* pChild)
 {
+	if (&style == (CtoeSimpleMenuStyle*)pChild)
+		return;
 	//CIwResource::ParseCloseChild(pParser, pChild);
 	childItems.Add(pChild);
 }
