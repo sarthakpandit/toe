@@ -21,6 +21,12 @@ CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
 	utf8string = 0;
 	textAlignment = 0;
 }
+//Constructor
+CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock(char*buf)
+{
+	utf8string = buf;
+	textAlignment = 0;
+}
 //Desctructor
 CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
 {
@@ -74,6 +80,8 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 	layoutData.size.y = combinedStyle.FontSize.GetPx(width);
 	layoutData.textAlignment = textAlignment;//IW_GEOM_ONE/3;
 	layoutData.isRightToLeft = false;//CtoeFreeTypeFont::IsRightToLeft();
+	layoutData.actualSize.y = 0;
+	layoutData.actualSize.x = width;
 	if (utf8string)
 	{
 		f->LayoutGlyphs(utf8string, layoutData);
@@ -89,6 +97,10 @@ void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
 	layoutData.RenderAt(p,combinedStyle.FontColor);
 	
+}
+void CtoeSimpleMenuTextBlock::RearrangeChildItems()
+{
+	CtoeSimpleMenuTerminalItem::RearrangeChildItems();
 }
 #ifdef IW_BUILD_RESOURCES
 

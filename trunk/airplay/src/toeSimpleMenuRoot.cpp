@@ -19,6 +19,13 @@ IW_MANAGED_IMPLEMENT(CtoeSimpleMenuRoot);
 //Constructor
 CtoeSimpleMenuRoot::CtoeSimpleMenuRoot()
 {
+	styleSheet= 0;
+	styleSheetHash = 0;
+	contentOffset = 0;
+	contentAreaHeight = 100;
+	contentAreaOffset = 0;
+	scrollAnimationAcc = 0;
+	isTouched = false;
 }
 //Desctructor
 CtoeSimpleMenuRoot::~CtoeSimpleMenuRoot()
@@ -33,20 +40,29 @@ void CtoeSimpleMenuRoot::Serialise ()
 	childItems.Serialise();
 	style.Serialise();
 	IwSerialiseUInt32(styleSheetHash);
-	if (IwSerialiseIsReading())
+	if (IwSerialiseIsReading() && styleSheetHash)
 	{
 		styleSheet = (CtoeSimpleMenuStyleSheet*)IwGetResManager()->GetResHashed(styleSheetHash,"CtoeSimpleMenuStyleSheet");
+	}
+	if (IwSerialiseIsReading())
+	{
+		CollectActiveItems();
 	}
 }
 //Render image on the screen surface
 void CtoeSimpleMenuRoot::Render()
 {
 	toeSimpleMenuItemContext renderContext;
-	renderContext.parentStyle = &style.settings;
+	if (styleSheet)
+		styleSheet->Apply(&styleSettings, IwHashString("SIMPLEMENU"), TOE_ANYSTYLE, TOE_ANYSTYLE);
+	style.Apply(&styleSettings);
+	renderContext.parentStyle = &styleSettings;
 	renderContext.styleSheet = styleSheet;
 	//renderContext.font = (CtoeFreeTypeFont*)IwGetResManager()->GetResNamed("Steinerlight","CtoeFreeTypeFont");
 	//renderContext.font = (CtoeFreeTypeFont*)IwGetResManager()->GetResNamed("font","CtoeFreeTypeFont");
 	int16 w = IwGxGetScreenWidth();
+	int16 h = IwGxGetScreenHeight();
+	styleSettings.Background.Render(CIwSVec2::g_Zero,CIwSVec2(w,h));
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
@@ -57,6 +73,51 @@ void CtoeSimpleMenuRoot::Render()
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
 		item->Render(&renderContext);
+	}
+}
+void CtoeSimpleMenuRoot::Update(iwfixed dt)
+{
+	CtoeSimpleMenuItem* content=0;
+		if (childItems.GetSize() > 0)
+		content = static_cast<CtoeSimpleMenuItem*>(childItems[0]);
+
+	if (!isTouched)
+	{
+		if (content)
+		{
+			int16 contentHeight = content->GetSize().y;
+			int16 minContent = 0;
+			int16 maxContent = 0;
+			if (contentHeight <= contentAreaHeight)
+			{
+				maxContent = contentHeight-contentAreaHeight;
+			}
+			else
+			{
+				maxContent = minContent = (contentHeight-contentAreaHeight)/2;
+			}
+			if (contentOffset < minContent)
+			{
+				contentOffset = minContent+(contentOffset-minContent)/2;
+				scrollAnimation = 0;
+			}
+			else if (contentOffset > maxContent)
+			{
+				contentOffset = maxContent+(contentOffset-maxContent)/2;
+				scrollAnimation = 0;
+			}
+			else
+			{
+				contentOffset += scrollAnimation;
+				scrollAnimation = scrollAnimation*8/10;
+			}
+			content->SetOrigin(CIwSVec2(0,contentAreaOffset+contentOffset));
+		}
+	}
+	else
+	{
+		scrollAnimation = scrollAnimationAcc;
+		scrollAnimationAcc = 0;
 	}
 }
 void CtoeSimpleMenuRoot::AlignBlocks()
@@ -70,22 +131,28 @@ void CtoeSimpleMenuRoot::AlignBlocks()
 		header = static_cast<CtoeSimpleMenuItem*>(childItems[1]);
 	if (childItems.GetSize() > 2)
 		footer = static_cast<CtoeSimpleMenuItem*>(childItems[2]);
-	int16 contentH = (int16)IwGxGetScreenHeight();
-	int16 contentY = 0;
+	contentAreaHeight = (int16)IwGxGetScreenHeight();
+	contentAreaOffset =0;
 	if (header)
 	{
 		header->SetOrigin(CIwSVec2(0,0));
-		contentY += header->GetSize().y;
-		contentH -= header->GetSize().y;
+		contentAreaOffset += header->GetSize().y;
+		contentAreaHeight -= header->GetSize().y;
 	}
 	if (footer)
 	{
-		footer->SetOrigin(CIwSVec2(0,contentY+contentH-footer->GetSize().y));
-		contentH -= footer->GetSize().y;
+		footer->SetOrigin(CIwSVec2(0,contentAreaOffset+contentAreaHeight-footer->GetSize().y));
+		contentAreaHeight -= footer->GetSize().y;
 	}
-	if (content)
+
+}
+void CtoeSimpleMenuRoot::CollectActiveItems()
+{
+	collection.clear();
+	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
-		content->SetOrigin(CIwSVec2(0,contentY));
+		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
+		item->CollectActiveItems(collection);
 	}
 }
 #ifdef IW_BUILD_RESOURCES

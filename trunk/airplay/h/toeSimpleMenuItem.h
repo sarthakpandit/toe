@@ -23,6 +23,8 @@ namespace TinyOpenEngine
 		CIwManagedList childItems;
 		CIwSVec2 origin;
 		CIwSVec2 size;
+		uint32 styleClass;
+		uint32 state;
 		//CIwSVec4 margin;
 		//CIwSVec4 padding;
 
@@ -48,6 +50,9 @@ namespace TinyOpenEngine
 		//Gets size of the item. It's only valid after Prepare method been executed
 		const CIwSVec2& GetSize() const {return size;}
 		virtual void SetOrigin(const CIwSVec2& v) { if (origin!=v) { origin=v;RearrangeChildItems(); }}
+
+		//Method walks through child items and collect active ones into plain list
+		virtual void CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection);
 
 		virtual void RearrangeChildItems();
 

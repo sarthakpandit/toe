@@ -112,6 +112,7 @@ bool	CtoeSimpleMenuBackground::ParseAttribute(CIwTextParserITX* pParser, const c
 		pParser->ReadUInt8Array(c,4);
 		CIwColour col;
 		col.Set(c[0],c[1],c[2],c[3]);
+
 		points.push_back();
 		points.back().Colour = col;
 		points.back().Position.Value = 0;

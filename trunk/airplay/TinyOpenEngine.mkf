@@ -8,9 +8,11 @@ files
 	("src")
 	TinyOpenEngine.cpp
 	toeComponent.cpp
+	toeDefaultHitTest.cpp
 	toeCamera.cpp
 	toeCamera2D.cpp
 	toeCameraPerspective.cpp
+	toeDummy.cpp
 	toeEntity.cpp
 	toeEventArgs.cpp
 	toeInput.cpp
@@ -27,6 +29,8 @@ files
 	toeCamera.h
 	toeCamera2D.h
 	toeCameraPerspective.h
+	toeDummy.h
+	toeDefaultHitTest.h
 	toeEntity.h
 	toeEventArgs.h
 	toeInput.h
