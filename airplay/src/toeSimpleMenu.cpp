@@ -30,6 +30,8 @@ CtoeSimpleMenu::~CtoeSimpleMenu()
 //Update subsystem state
 void CtoeSimpleMenu::Update(iwfixed dt)
 {
+	if (menu)
+		menu->Update(dt);
 }
 //Find all entities under the pointer
 void CtoeSimpleMenu::PointerHitTest(HitTestContext* htc)

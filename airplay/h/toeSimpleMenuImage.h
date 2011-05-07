@@ -25,6 +25,8 @@ namespace TinyOpenEngine
 		IW_MANAGED_DECLARE(CtoeSimpleMenuImage);
 		//Constructor
 		CtoeSimpleMenuImage();
+		//Constructor
+		CtoeSimpleMenuImage(uint32 hash);
 		//Desctructor
 		virtual ~CtoeSimpleMenuImage();
 
@@ -40,5 +42,7 @@ namespace TinyOpenEngine
 		//Parses from text file: parses attribute/value pair.
 		virtual	bool	ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName);
 #endif
+	protected:
+		void InitImage();
 	};
 }

@@ -1,3 +1,4 @@
+#include <IwGx.h>
 #include "TinyOpenEngine.FreeType.h"
 #include "toeFreeTypeFont.h"
 
@@ -17,11 +18,24 @@ namespace TinyOpenEngine
 
 	int32 toeGetScreenDPI_iOS()
 	{
-		//const char* deviceID = s3eDeviceGetString(S3E_DEVICE_ID);
+		uint32 w = IwGxGetScreenWidth();
+		uint32 h = IwGxGetScreenHeight();
+		if (w<h)
+		{
+			uint32 i = w;w=h;h=i;
+		}
+		if (w == 480)
+			return 163;
+		if (w == 1024)
+			return 132;
+		if (w == 326)
+			return 326;
 		return 163;
-		//return 326; //Retina display
-		//return 132; //iPad
-		//return 163; //old ipod/iphone;
+
+		//const char* deviceID = s3eDeviceGetString(S3E_DEVICE_ID);
+		//return 326; //Retina display 960x640
+		//return 132; //iPad 1024x768
+		//return 163; //old ipod/iphone; 480x320
 	}
 }
 

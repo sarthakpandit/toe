@@ -106,25 +106,25 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 	{
 		pParser->ReadInt16(&settings.Padding.x);
 		settings.Padding.y = settings.Padding.z = settings.Padding.w = settings.Padding.x;
-		isMargin = true;
+		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-left", pAttrName))
 	{
 		pParser->ReadInt16(&settings.Padding.x);
-		isMargin = true;
+		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-right", pAttrName))
 	{
 		pParser->ReadInt16(&settings.Padding.z);
-		isMargin = true;
+		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-top", pAttrName))
 	{
 		pParser->ReadInt16(&settings.Padding.y);
-		isMargin = true;
+		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-bottom", pAttrName))

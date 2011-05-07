@@ -45,13 +45,14 @@ void CtoeSimpleMenuStyleSheet::Serialise ()
 	}
 }
 
-void CtoeSimpleMenuStyleSheet::Apply(CtoeSimpleMenuStyleSettings* other, uint32 c, uint32 n, uint32 s)
+void CtoeSimpleMenuStyleSheet::Apply(CtoeSimpleMenuStyleSettings* other, uint32 n, uint32 c, uint32 s)
 {
 	for (uint32 i=0; i<map.size(); ++i)
 	{
-		if (((map[i].ClassHash == c) || (map[i].ClassHash == TOE_ANYSTYLE)) &&
-			((map[i].NameHash == c) || (map[i].NameHash == TOE_ANYSTYLE)) &&
-			((map[i].StateHash == c) || (map[i].StateHash == TOE_ANYSTYLE)))
+		toeSimpleMenuStyleSheetItem& st = map[i];
+		if (((st.ClassHash == c) || (st.ClassHash == TOE_ANYSTYLE)) &&
+			((st.NameHash == n) || (st.NameHash == TOE_ANYSTYLE)) &&
+			((st.StateHash == s) || (st.StateHash == TOE_ANYSTYLE)))
 		{
 			styles[map[i].Index].Apply(other);
 		}

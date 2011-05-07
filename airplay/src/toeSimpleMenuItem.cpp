@@ -2,6 +2,8 @@
 #include <IwResManager.h>
 #include <IwGx.h>
 #include "toeSimpleMenuItem.h"
+#include "toeSimpleMenuTextBlock.h"
+#include "toeSimpleMenuImage.h"
 
 using namespace TinyOpenEngine;
 
@@ -20,6 +22,8 @@ CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 {
 	origin = CIwSVec2::g_Zero;
 	size = CIwSVec2::g_Zero;
+	styleClass = TOE_ANYSTYLE;
+	state = TOE_ANYSTYLE;
 }
 //Desctructor
 CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
@@ -35,6 +39,8 @@ void CtoeSimpleMenuItem::Serialise ()
 	origin.Serialise();
 	size.Serialise();
 	style.Serialise();
+	IwSerialiseUInt32(styleClass);
+	IwSerialiseUInt32(state);
 }
 
 void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
@@ -52,6 +58,7 @@ void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 w
 		item->Prepare(&context,contentWidth);
 		size.y += item->GetSize().y;
 	}
+	size.y += GetMarginTop()+GetPaddingTop()+GetMarginBottom()+GetPaddingBottom();
 	RearrangeChildItems();
 }
 void CtoeSimpleMenuItem::RearrangeChildItems()
@@ -99,9 +106,16 @@ void CtoeSimpleMenuItem::ApplyStyle(CtoeSimpleMenuStyle* style)
 	style->Apply(&combinedStyle);
 }
 uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
-uint32 CtoeSimpleMenuItem::GetElementClassHash() { return TOE_ANYSTYLE; }
-uint32 CtoeSimpleMenuItem::GetElementStateHash() { return TOE_ANYSTYLE; }
-
+uint32 CtoeSimpleMenuItem::GetElementClassHash() { return styleClass; }
+uint32 CtoeSimpleMenuItem::GetElementStateHash() { return state; }
+void CtoeSimpleMenuItem::CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection)
+{
+	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
+	{
+		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
+		item->CollectActiveItems(collection);
+	}
+}
 #ifdef IW_BUILD_RESOURCES
 //Parses from text file: start block.
 void	CtoeSimpleMenuItem::ParseOpen(CIwTextParserITX* pParser)
@@ -116,6 +130,30 @@ bool	CtoeSimpleMenuItem::ParseAttribute(CIwTextParserITX* pParser, const char* p
 	if (!stricmp("style", pAttrName))
 	{
 		pParser->PushObject(&style);
+		return true;
+	}
+	if (!stricmp("styleClass", pAttrName))
+	{
+		pParser->ReadStringHash(&styleClass);
+		return true;
+	}
+	if (!stricmp("state", pAttrName))
+	{
+		pParser->ReadStringHash(&state);
+		return true;
+	}
+	if (!stricmp("text", pAttrName))
+	{
+		CtoeSimpleMenuTextBlock* tb = new CtoeSimpleMenuTextBlock(pParser->ReadString());
+		childItems.Add(tb);
+		return true;
+	}
+	if (!stricmp("image", pAttrName))
+	{
+		uint32 t;
+		pParser->ReadStringHash(&t);
+		CtoeSimpleMenuImage* ti = new CtoeSimpleMenuImage(t);
+		childItems.Add(ti);
 		return true;
 	}
 	return CIwManaged::ParseAttribute(pParser, pAttrName);

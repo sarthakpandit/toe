@@ -9,24 +9,41 @@ files
 	TinyOpenEngine.SimpleMenu.cpp
 	toeSimpleMenu.cpp
 	toeSimpleMenuBackground.cpp
+	toeSimpleMenuButton.cpp
+	toeSimpleMenuCanvas.cpp
+	toeSimpleMenuGrid.cpp
 	toeSimpleMenuImage.cpp
+	toeSimpleMenuImageCarousel.cpp
+	toeSimpleMenuInputComponent.cpp
 	toeSimpleMenuItem.cpp
 	toeSimpleMenuRoot.cpp
+	toeSimpleMenuRow.cpp
+	toeSimpleMenuSlider.cpp
 	toeSimpleMenuStyle.cpp
-	toeSimpleMenuTerminalItem.cpp 
-	toeSimpleMenuTextBlock.cpp 
+	toeSimpleMenuStyleSheet.cpp
+	toeSimpleMenuTerminalItem.cpp
+	toeSimpleMenuTextBlock.cpp
+
 
 	[h]
 	("h")
 	TinyOpenEngine.SimpleMenu.h
-	toeSimpleMenu.h
-	toeSimpleMenuBackground.h
-	toeSimpleMenuImage.h
-	toeSimpleMenuItem.h
-	toeSimpleMenuRoot.h
-	toeSimpleMenuStyle.h
-	toeSimpleMenuTerminalItem.h
-	toeSimpleMenuTextBlock.h
+	toeSimpleMenu.h 
+	toeSimpleMenuBackground.h 
+	toeSimpleMenuButton.h 
+	toeSimpleMenuCanvas.h 
+	toeSimpleMenuGrid.h 
+	toeSimpleMenuImage.h 
+	toeSimpleMenuImageCarousel.h 
+	toeSimpleMenuInputComponent.h 
+	toeSimpleMenuItem.h 
+	toeSimpleMenuRoot.h 
+	toeSimpleMenuRow.h 
+	toeSimpleMenuSlider.h 
+	toeSimpleMenuStyle.h 
+	toeSimpleMenuStyleSheet.h 
+	toeSimpleMenuTerminalItem.h 
+	toeSimpleMenuTextBlock.h 
 }
 subprojects
 {

@@ -6,13 +6,22 @@
 
 namespace TinyOpenEngine
 {
+	class CtoeSimpleMenuItem;
 	class CtoeSimpleMenuRoot : public CIwResource
 	{
 	protected:
 		CIwManagedList childItems;
 		uint32 styleSheetHash;
+		CtoeSimpleMenuStyleSettings styleSettings;
 		CtoeSimpleMenuStyle style;
 		CtoeSimpleMenuStyleSheet* styleSheet;
+		int16 contentOffset;
+		int16 scrollAnimation;
+		int16 contentAreaHeight;
+		int16 contentAreaOffset;
+		int16 scrollAnimationAcc;
+		bool isTouched;
+		CIwArray<CtoeSimpleMenuItem*> collection;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuRoot);
@@ -25,8 +34,14 @@ namespace TinyOpenEngine
 		virtual void Serialise ();
 		//Render image on the screen surface
 		void Render();
+		//Update
+		void Update(iwfixed dt);
 
 		void AlignBlocks();
+
+		//Method walks through child items and collect active ones into plain list
+		void CollectActiveItems();
+
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);

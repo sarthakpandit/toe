@@ -13,6 +13,7 @@ assets
 {
 	(../data)
 	./menu/font.ttf
+	./menu/fontbold.ttf
 	(../data-ram/data-gles1)
 	./menu/mainmenu.group.bin
 }
@@ -31,6 +32,7 @@ files
 
 	[Data/menu]
 	(../data/menu)
+	menu.simplemenustyle
 	mainmenu.toeworld
 	mainmenu.simplemenu
 	mainmenu.lua 

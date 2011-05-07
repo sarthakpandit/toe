@@ -18,6 +18,22 @@ IW_MANAGED_IMPLEMENT(CtoeSimpleMenuImage);
 //Constructor
 CtoeSimpleMenuImage::CtoeSimpleMenuImage()
 {
+	InitImage();
+}
+//Constructor
+CtoeSimpleMenuImage::CtoeSimpleMenuImage(uint32 t)
+{
+	InitImage();
+	textureHash = t;
+}
+//Desctructor
+CtoeSimpleMenuImage::~CtoeSimpleMenuImage()
+{
+	if (material)
+		delete material;
+}
+void CtoeSimpleMenuImage::InitImage()
+{
 	textureHash = 0;
 	texture = 0;
 	material = 0;
@@ -34,12 +50,6 @@ CtoeSimpleMenuImage::CtoeSimpleMenuImage()
 	styleSheet = 0;
 
 }
-//Desctructor
-CtoeSimpleMenuImage::~CtoeSimpleMenuImage()
-{
-	if (material)
-		delete material;
-}
 
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuImage::Serialise ()
@@ -51,6 +61,7 @@ void CtoeSimpleMenuImage::Prepare(toeSimpleMenuItemContext* renderContext,int16 
 {
 	if (textureHash == 0)
 		return;
+	CombineStyle(renderContext);
 	if (!material)
 	{
 		texture = (CIwTexture*)IwGetResManager()->GetResHashed(textureHash, IW_GX_RESTYPE_TEXTURE);
