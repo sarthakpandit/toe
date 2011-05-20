@@ -54,10 +54,9 @@ void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& si
 	if (texture)
 		m->SetTexture(texture);
 	m->SetColAmbient(255,255,255,255);
-	IwGxSetMaterial(m);
 	uint32 numIndices = 0;
 	uint32 numP = 0;
-	
+	bool alpha = false;
 	for (uint32 i=0; i<points.size(); ++i)
 	{
 		int32 h = points[i].Position.GetPx(size.y);
@@ -82,6 +81,8 @@ void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& si
 		uv[numP].y = h*IW_GEOM_ONE/size.y;
 		col[numP] = points[i].Colour;
 		++numP;
+		if (points[i].Colour.a != 255)
+			alpha = true;
 	}
 	v[numP].x = origin.x;
 	v[numP].y = origin.y+size.y;
@@ -95,6 +96,9 @@ void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& si
 	uv[numP].y = IW_GEOM_ONE;
 	col[numP] = points.back().Colour;
 	++numP;
+	if (alpha)
+		m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
+	IwGxSetMaterial(m);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetUVStream(uv);
 	IwGxSetColStream(col);

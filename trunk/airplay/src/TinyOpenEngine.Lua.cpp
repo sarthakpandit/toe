@@ -1,10 +1,7 @@
 #include "TinyOpenEngine.Lua.h"
 #include "toeLuaScript.h"
+#include "toeLuaState.h"
 
-#define lua_c
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
 
 using namespace TinyOpenEngine;
 
@@ -24,6 +21,7 @@ void TinyOpenEngine::toeLuaInit()
 	#endif
 
 	IW_CLASS_REGISTER(CtoeLuaScript);
+	IW_CLASS_REGISTER(CtoeLuaState);
 }
 
 void TinyOpenEngine::toeLuaTerminate()

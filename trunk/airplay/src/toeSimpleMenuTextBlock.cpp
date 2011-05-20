@@ -19,13 +19,13 @@ IW_MANAGED_IMPLEMENT(CtoeSimpleMenuTextBlock);
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
 {
 	utf8string = 0;
-	textAlignment = 0;
+	//cachedWithCombinedStyle;
+	cachedWithWidth = -100;
 }
 //Constructor
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock(char*buf)
 {
 	utf8string = buf;
-	textAlignment = 0;
 }
 //Desctructor
 CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
@@ -41,7 +41,6 @@ CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
 void CtoeSimpleMenuTextBlock::Serialise ()
 {
 	CtoeSimpleMenuTerminalItem::Serialise();
-	IwSerialiseInt32(textAlignment);
 	style.Serialise();
 	size_t len = 0;
 	if (IwSerialiseIsReading())
@@ -59,7 +58,8 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 		{
 			len = strlen(utf8string);
 			IwSerialiseUInt32(len);
-			IwSerialiseString(utf8string);
+			if (len > 0)
+				IwSerialiseString(utf8string);
 		}
 		else
 		{
@@ -70,6 +70,10 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
 	CombineStyle(renderContext);
+	if (cachedWithWidth == width && combinedStyle == cachedWithCombinedStyle)
+		return;
+	cachedWithCombinedStyle = combinedStyle;
+	cachedWithWidth = width;
 	CtoeFreeTypeFont* f = combinedStyle.Font;
 	if (!f)
 		return;
@@ -78,7 +82,7 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 	layoutData.origin = CIwSVec2::g_Zero;
 	layoutData.size.x = contentWidth;
 	layoutData.size.y = combinedStyle.FontSize.GetPx(width);
-	layoutData.textAlignment = textAlignment;//IW_GEOM_ONE/3;
+	layoutData.textAlignment = combinedStyle.HorizontalAlignment;//IW_GEOM_ONE/3;
 	layoutData.isRightToLeft = false;//CtoeFreeTypeFont::IsRightToLeft();
 	layoutData.actualSize.y = 0;
 	layoutData.actualSize.x = width;
@@ -93,6 +97,7 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 //Render image on the screen surface
 void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 {
+	if (!IsVisible(renderContext)) return;
 	combinedStyle.Background.Render(GetOrigin()+CIwSVec2(GetMarginLeft(),GetMarginTop()), GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight(),GetMarginTop()+GetMarginBottom()));
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
 	layoutData.RenderAt(p,combinedStyle.FontColor);
@@ -110,11 +115,6 @@ bool	CtoeSimpleMenuTextBlock::ParseAttribute(CIwTextParserITX* pParser, const ch
 	if (!stricmp("text",pAttrName))
 	{
 		utf8string = pParser->ReadString();
-		return true;
-	}
-	if (!stricmp("textAlignment",pAttrName))
-	{
-		pParser->ReadFixed(&textAlignment);
 		return true;
 	}
 	return CtoeSimpleMenuTerminalItem::ParseAttribute(pParser, pAttrName);

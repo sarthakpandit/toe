@@ -40,12 +40,6 @@ void CtoeSimpleMenuSlider::Render(toeSimpleMenuItemContext* renderContext)
 {
 	CtoeSimpleMenuItem::Render(renderContext);
 }
-//Method walks through child items and collect active ones into plain list
-void CtoeSimpleMenuSlider::CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection)
-{
-	CtoeSimpleMenuItem::CollectActiveItems(collection);
-	collection.push_back(this);
-}
 
 #ifdef IW_BUILD_RESOURCES
 

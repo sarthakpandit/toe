@@ -11,6 +11,7 @@ files
 	toeSimpleMenuBackground.cpp
 	toeSimpleMenuButton.cpp
 	toeSimpleMenuCanvas.cpp
+	toeSimpleMenuClickable.cpp
 	toeSimpleMenuGrid.cpp
 	toeSimpleMenuImage.cpp
 	toeSimpleMenuImageCarousel.cpp
@@ -31,6 +32,7 @@ files
 	toeSimpleMenu.h 
 	toeSimpleMenuBackground.h 
 	toeSimpleMenuButton.h 
+	toeSimpleMenuClickable.h
 	toeSimpleMenuCanvas.h 
 	toeSimpleMenuGrid.h 
 	toeSimpleMenuImage.h 

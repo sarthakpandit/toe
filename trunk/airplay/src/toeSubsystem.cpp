@@ -52,7 +52,22 @@ uint32 CtoeSubsystem::RegisterComponent(CtoeComponent* component)
 {
 	return 0;
 }
-
+// Recieve message sent by CtoeEntity->SendMessage
+void CtoeSubsystem::RecieveMessage(uint32 eventNameHast, CtoeEventArgs*eventArgs)
+{
+}
+void CtoeSubsystem::UnhandledTouchEvent(TouchContext* touchContext)
+{
+}
+void CtoeSubsystem::UnhandledTouchReleaseEvent(TouchContext* touchContext)
+{
+}
+void CtoeSubsystem::UnhandledTouchMotionEvent(TouchContext* touchContext)
+{
+}
+void CtoeSubsystem::UnhandledKeyEvent(KeyContext* keyContext)
+{
+}
 //Removes component to the subsystem. It doesn't always means that component is deleted. It also used in case of component been "disabled"
 void CtoeSubsystem::UnregisterComponent(uint32)
 {

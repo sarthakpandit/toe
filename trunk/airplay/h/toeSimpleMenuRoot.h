@@ -2,11 +2,15 @@
 
 #include <IwResManager.h>
 #include <IwManagedList.h>
+
+#include <toeInput.h>
 #include "toeSimpleMenuStyleSheet.h"
+#include "toeSimpleMenuItem.h"
 
 namespace TinyOpenEngine
 {
-	class CtoeSimpleMenuItem;
+	class CtoeSimpleMenu;
+	//class CtoeSimpleMenuItem;
 	class CtoeSimpleMenuRoot : public CIwResource
 	{
 	protected:
@@ -20,8 +24,11 @@ namespace TinyOpenEngine
 		int16 contentAreaHeight;
 		int16 contentAreaOffset;
 		int16 scrollAnimationAcc;
-		bool isTouched;
+		bool isVerticalScrolled;
 		CIwArray<CtoeSimpleMenuItem*> collection;
+		TouchContext* activeTouch;
+		CtoeSimpleMenuItem* activeItem;
+		CtoeSimpleMenu*simpleMenu;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuRoot);
@@ -29,6 +36,8 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuRoot();
 		//Desctructor
 		virtual ~CtoeSimpleMenuRoot();
+
+		void Initialize(CtoeSimpleMenu*);
 
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
@@ -39,8 +48,19 @@ namespace TinyOpenEngine
 
 		void AlignBlocks();
 
-		//Method walks through child items and collect active ones into plain list
-		void CollectActiveItems();
+		CtoeSimpleMenuItem* GetContent() const { return (childItems.GetSize() > 0)?static_cast<CtoeSimpleMenuItem*>(childItems[0]):(CtoeSimpleMenuItem*)0;}
+		CtoeSimpleMenuItem* GetHeader() const { return (childItems.GetSize() > 1)?static_cast<CtoeSimpleMenuItem*>(childItems[1]):(CtoeSimpleMenuItem*)0;}
+		CtoeSimpleMenuItem* GetFooter() const { return (childItems.GetSize() > 2)?static_cast<CtoeSimpleMenuItem*>(childItems[2]):(CtoeSimpleMenuItem*)0;}
+		CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & coord);
+		CtoeSimpleMenuItem* FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip);
+		CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
+		virtual bool TouchEvent(TouchContext* touchContext);
+		virtual bool TouchReleaseEvent(TouchContext* touchContext);
+		virtual bool TouchMotionEvent(TouchContext* touchContext);
+		virtual bool KeyEvent(KeyContext* keyContext);
+		void SetFocusTo(CtoeSimpleMenuItem*);
+		void ScrollToItem(CtoeSimpleMenuItem*);
+		void Eval(CtoeSimpleMenuItem*, const char*s);
 
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.

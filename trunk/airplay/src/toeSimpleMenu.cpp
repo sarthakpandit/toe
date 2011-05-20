@@ -2,6 +2,8 @@
 #include <IwResManager.h>
 #include "toeSimpleMenu.h"
 #include "toeSimpleMenuRoot.h"
+#include <toeScriptingSubsystem.h>
+#include <toeWorld.h>
 
 using namespace TinyOpenEngine;
 
@@ -21,6 +23,7 @@ CtoeSimpleMenu::CtoeSimpleMenu()
 {
 	menulayout= 0;
 	menu= 0;
+	scriptSubsystemHash = 0;
 }
 
 //Desctructor
@@ -38,6 +41,26 @@ void CtoeSimpleMenu::PointerHitTest(HitTestContext* htc)
 {
 }
 
+void CtoeSimpleMenu::UnhandledTouchEvent(TouchContext* touchContext)
+{
+	if (menu)
+		menu->TouchEvent(touchContext);
+}
+void CtoeSimpleMenu::UnhandledTouchReleaseEvent(TouchContext* touchContext)
+{
+	if (menu)
+		menu->TouchReleaseEvent(touchContext);
+}
+void CtoeSimpleMenu::UnhandledTouchMotionEvent(TouchContext* touchContext)
+{
+	if (menu)
+		menu->TouchMotionEvent(touchContext);
+}
+void CtoeSimpleMenu::UnhandledKeyEvent(KeyContext* keyContext)
+{
+	if (menu)
+		menu->KeyEvent(keyContext);
+}
 //Render image on the screen surface
 void CtoeSimpleMenu::Render()
 {
@@ -56,7 +79,22 @@ void CtoeSimpleMenu::Initialize(CtoeWorld*w)
 		if (!menu)
 		{
 			menu = (CtoeSimpleMenuRoot*)IwGetResManager()->GetResHashed(menulayout,"CtoeSimpleMenuRoot");
+			if (menu)
+			{
+				menu->Initialize(this);
+			}
 		}
+	}
+}
+
+void CtoeSimpleMenu::Eval(CtoeSimpleMenuItem*item, const char*s)
+{
+	if (!scriptSubsystemHash)
+		return;
+	ItoeScriptingSubsystem* i = dynamic_cast<ItoeScriptingSubsystem*>(toeWorld->GetSubsystem(scriptSubsystemHash));
+	if (i)
+	{
+		i->Eval(s);
 	}
 }
 
@@ -65,6 +103,7 @@ void CtoeSimpleMenu::Serialise ()
 {
 	CtoeSubsystem::Serialise();
 	IwSerialiseUInt32(menulayout);
+	IwSerialiseUInt32(scriptSubsystemHash);
 }
 
 
@@ -78,6 +117,12 @@ bool CtoeSimpleMenu::ParseAttribute(CIwTextParserITX* pParser, const char* pAttr
 		pParser->ReadStringHash(&menulayout);
 		return true;
 	}
+	if (!stricmp("script", pAttrName))
+	{
+		pParser->ReadStringHash(&scriptSubsystemHash);
+		return true;
+	}
+	
 	return CtoeSubsystem::ParseAttribute(pParser,pAttrName);
 }
 #endif

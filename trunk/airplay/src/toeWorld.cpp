@@ -68,9 +68,17 @@ void CtoeWorld::Serialise ()
 	subsystems.Serialise();
 	IwDebugTraceLinePrintf("CtoeWorld::subsystems.GetSize()=%d",subsystems.GetSize());
 
-	inputOrder.SerialiseHeader();
-	for (uint32 i=0; i<inputOrder.size(); ++i)
-		IwSerialiseUInt32(inputOrder[i]);
+	hittestOrder.SerialiseHeader();
+	for (uint32 i=0; i<hittestOrder.size(); ++i)
+		IwSerialiseUInt32(hittestOrder[i]);
+
+	pointerHandlersOrder.SerialiseHeader();
+	for (uint32 i=0; i<pointerHandlersOrder.size(); ++i)
+		IwSerialiseUInt32(pointerHandlersOrder[i]);
+
+	keyboardHandlersOrder.SerialiseHeader();
+	for (uint32 i=0; i<keyboardHandlersOrder.size(); ++i)
+		IwSerialiseUInt32(keyboardHandlersOrder[i]);
 
 	renderOrder.SerialiseHeader();
 	for (uint32 i=0; i<renderOrder.size(); ++i)
@@ -145,9 +153,9 @@ void CtoeWorld::Render ()
 }
 void CtoeWorld::PointerHitTest(HitTestContext* htc)
 {
-	for (uint32 i=0; i<inputOrder.size(); ++i)
+	for (uint32 i=0; i<hittestOrder.size(); ++i)
 	{
-		CtoeSubsystem*s = GetSubsystem(inputOrder[i]);
+		CtoeSubsystem*s = GetSubsystem(hittestOrder[i]);
 		if (s)
 		{
 			s->PointerHitTest(htc);
@@ -183,7 +191,28 @@ CtoeSubsystem* CtoeWorld::GetSubsystem(uint32 hash) const
 	if (!m) return 0;
 	return static_cast<CtoeSubsystem*>(m);
 }
+void CtoeWorld::UnhandledTouchEvent(TouchContext* touchContext)
+{
+	for (uint32 i=0; i<pointerHandlersOrder.size(); ++i)
+		GetSubsystem(pointerHandlersOrder[i])->UnhandledTouchEvent(touchContext);
+}
 
+void CtoeWorld::UnhandledTouchReleaseEvent(TouchContext* touchContext)
+{
+	for (uint32 i=0; i<pointerHandlersOrder.size(); ++i)
+		GetSubsystem(pointerHandlersOrder[i])->UnhandledTouchReleaseEvent(touchContext);
+}
+
+void CtoeWorld::UnhandledTouchMotionEvent(TouchContext* touchContext)
+{
+	for (uint32 i=0; i<pointerHandlersOrder.size(); ++i)
+		GetSubsystem(pointerHandlersOrder[i])->UnhandledTouchMotionEvent(touchContext);
+}
+void CtoeWorld::UnhandledKeyEvent(KeyContext* keyContext)
+{
+	for (uint32 i=0; i<keyboardHandlersOrder.size(); ++i)
+		GetSubsystem(keyboardHandlersOrder[i])->UnhandledKeyEvent(keyContext);
+}
 #ifdef IW_BUILD_RESOURCES
 
 //Parses from text file: start block.
@@ -195,14 +224,28 @@ void	CtoeWorld::ParseOpen(CIwTextParserITX* pParser)
 //Parses from text file: parses attribute/value pair.
 bool	CtoeWorld::ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName)
 {
-	if (!strcmp("input",pAttrName))
+	if (!stricmp("hittest",pAttrName))
 	{
 		uint32 hash;
 		pParser->ReadStringHash(&hash);
-		inputOrder.push_back(hash);
+		hittestOrder.push_back(hash);
 		return true;
 	}
-	if (!strcmp("update",pAttrName))
+	if (!stricmp("pointerHandler",pAttrName))
+	{
+		uint32 hash;
+		pParser->ReadStringHash(&hash);
+		pointerHandlersOrder.push_back(hash);
+		return true;
+	}
+	if (!stricmp("keyboardHandler",pAttrName))
+	{
+		uint32 hash;
+		pParser->ReadStringHash(&hash);
+		keyboardHandlersOrder.push_back(hash);
+		return true;
+	}
+	if (!stricmp("update",pAttrName))
 	{
 		uint32 hash;
 		pParser->ReadStringHash(&hash);

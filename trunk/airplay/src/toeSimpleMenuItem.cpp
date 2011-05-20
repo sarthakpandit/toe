@@ -73,9 +73,33 @@ void CtoeSimpleMenuItem::RearrangeChildItems()
 		topLeft.y += item->GetSize().y;
 	}
 }
+void CtoeSimpleMenuItem::InitTree(CtoeSimpleMenuRoot*r,CtoeSimpleMenuItem*p)
+{
+	root = r;
+	parent = p;
+	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
+	{
+		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
+		item->InitTree(r,this);
+	}
+}
+bool CtoeSimpleMenuItem::IsVisible(toeSimpleMenuItemContext* renderContext)
+{
+	if (origin.x >= renderContext->viewportPos.x+renderContext->viewportSize.x)
+		return false;
+	if (origin.y >= renderContext->viewportPos.y+renderContext->viewportSize.y)
+		return false;
+	if (origin.x+size.x <= renderContext->viewportPos.x)
+		return false;
+	if (origin.y+size.y <= renderContext->viewportPos.y)
+		return false;
+	return true;
+}
 //Render image on the screen surface
 void CtoeSimpleMenuItem::Render(toeSimpleMenuItemContext* renderContext)
 {
+	if (!IsVisible(renderContext))
+		return;
 	toeSimpleMenuItemContext context = *renderContext;
 	context.parentStyle = &combinedStyle;
 
@@ -105,17 +129,92 @@ void CtoeSimpleMenuItem::ApplyStyle(CtoeSimpleMenuStyle* style)
 {
 	style->Apply(&combinedStyle);
 }
-uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
-uint32 CtoeSimpleMenuItem::GetElementClassHash() { return styleClass; }
-uint32 CtoeSimpleMenuItem::GetElementStateHash() { return state; }
-void CtoeSimpleMenuItem::CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection)
+CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip)
 {
+	if (skipItem == this)
+	{
+		skipItem = 0;
+	}
+	else if (IsActive())
+	{
+		if (!skipItem)
+		{
+			if (!toSkip)
+				return this;
+			--toSkip;
+		}
+	}
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		item->CollectActiveItems(collection);
+		CtoeSimpleMenuItem* foundItem = item->FindActiveItemForward(skipItem,toSkip);
+		if (foundItem)
+			return foundItem;
 	}
+	return 0;
 }
+CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip)
+{
+	CIwManaged** i = childItems.GetEnd();
+	for (; i!=childItems.GetBegin();)
+	{
+		--i;
+		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
+		CtoeSimpleMenuItem* foundItem = item->FindActiveItemForward(skipItem,toSkip);
+		if (foundItem)
+			return foundItem;
+	}
+	if (skipItem == this)
+	{
+		skipItem = 0;
+	}
+	else if (IsActive())
+	{
+		if (!skipItem)
+		{
+			if (!toSkip)
+				return this;
+			--toSkip;
+		}
+	}
+	return 0;
+}
+
+CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemAt(const CIwVec2 & pos)
+{
+	if (IsActive())
+	{
+		if (pos.x >= origin.x && pos.y >= origin.y && pos.x < origin.x+size.x && pos.y < origin.y+size.y)
+			return this;
+	}
+	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
+	{
+		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
+		CtoeSimpleMenuItem* foundItem = item->FindActiveItemAt(pos);
+		if (foundItem)
+			return foundItem;
+	}
+	return 0;
+}
+void CtoeSimpleMenuItem::SetFocus(bool f)
+{
+	if (f)
+		state = IwHashString("Focus");
+	else
+		state = TOE_ANYSTYLE;
+}
+void CtoeSimpleMenuItem::Touch(TouchContext* touchContext)
+{
+}
+void CtoeSimpleMenuItem::TouchReleased(TouchContext* touchContext)
+{
+}
+void CtoeSimpleMenuItem::TouchMotion(TouchContext* touchContext)
+{
+}
+uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
+uint32 CtoeSimpleMenuItem::GetElementClassHash() { return styleClass; }
+uint32 CtoeSimpleMenuItem::GetElementStateHash() { return state; }
 #ifdef IW_BUILD_RESOURCES
 //Parses from text file: start block.
 void	CtoeSimpleMenuItem::ParseOpen(CIwTextParserITX* pParser)

@@ -14,9 +14,11 @@ namespace TinyOpenEngine
 		CtoeLength FontSize;
 		CIwColour FontColor;
 		CtoeSimpleMenuBackground Background;
-		CIwSVec4 Margin;
-		CIwSVec4 Padding;
-		CtoeSimpleMenuStyleSettings():FontHash(0),Font(0),Margin(CIwSVec4::g_Zero),Padding(CIwSVec4::g_Zero){ FontColor.Set(0xFF000000);}
+		CtoeLength4 Margin;
+		CtoeLength4 Padding;
+		iwfixed HorizontalAlignment;
+		iwfixed VerticalAlignment;
+		CtoeSimpleMenuStyleSettings():FontHash(0),Font(0),FontSize(8,CtoeLength::PT),HorizontalAlignment(0),VerticalAlignment(IW_GEOM_ONE/2){ FontColor.Set(0xFF000000);}
 		void Serialise();
 		void Inherit(CtoeSimpleMenuStyleSettings* other)
 		{
@@ -26,6 +28,29 @@ namespace TinyOpenEngine
 			Font = other->Font;
 			FontSize = other->FontSize;
 			FontColor = other->FontColor;
+			HorizontalAlignment = other->HorizontalAlignment;
+			VerticalAlignment = other->VerticalAlignment;
+		}
+		inline int16 GetMarginLeft(int16 total)const {return (int16)Margin.left.GetPx(total);}
+		inline int16 GetMarginTop(int16 total)const {return (int16)Margin.top.GetPx(total);}
+		inline int16 GetMarginRight(int16 total)const {return (int16)Margin.right.GetPx(total);}
+		inline int16 GetMarginBottom(int16 total)const {return (int16)Margin.bottom.GetPx(total);}
+
+		inline int16 GetPaddingLeft(int16 total)const {return (int16)Padding.left.GetPx(total);}
+		inline int16 GetPaddingTop(int16 total)const {return (int16)Padding.top.GetPx(total);}
+		inline int16 GetPaddingRight(int16 total)const {return (int16)Padding.right.GetPx(total);}
+		inline int16 GetPaddingBottom(int16 total)const {return (int16)Padding.bottom.GetPx(total);}
+
+		bool operator == (const CtoeSimpleMenuStyleSettings & other)const
+		{
+			return (Font == other.Font)
+				&& (FontSize == other.FontSize)
+				&& (FontColor == other.FontColor)
+				&& (Background == other.Background)
+				&& (Margin == other.Margin)
+				&& (Padding == other.Padding)
+				&& (VerticalAlignment == other.VerticalAlignment)
+				&& (HorizontalAlignment == other.HorizontalAlignment);
 		}
 	};
 
@@ -40,8 +65,10 @@ namespace TinyOpenEngine
 		bool isBackground;
 		bool isMargin;
 		bool isPadding;
+		bool isHorizontalAlignment;
+		bool isVerticalAlignment;
 	public:
-		CtoeSimpleMenuStyle():isFont(false),isFontSize(false),isFontColor(false),isBackground(false),isMargin(false),isPadding(false){}
+		CtoeSimpleMenuStyle():isFont(false),isFontSize(false),isFontColor(false),isBackground(false),isMargin(false),isPadding(false),isHorizontalAlignment(false),isVerticalAlignment(false){}
 		virtual void Serialise();
 		void Apply(CtoeSimpleMenuStyleSettings* other)
 		{
@@ -60,6 +87,10 @@ namespace TinyOpenEngine
 				other->Margin = settings.Margin;
 			if (isPadding)
 				other->Padding = settings.Padding;
+			if (isHorizontalAlignment)
+				other->HorizontalAlignment = settings.HorizontalAlignment;
+			if (isVerticalAlignment)
+				other->VerticalAlignment = settings.VerticalAlignment;
 		}
 
 #ifdef IW_BUILD_RESOURCES

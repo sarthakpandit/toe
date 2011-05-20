@@ -15,12 +15,14 @@ files
 	toeDummy.cpp
 	toeEntity.cpp
 	toeEventArgs.cpp
+	toeFeatures.cpp
 	toeInput.cpp
 	toeIntrusiveList.cpp
 	toeSelfRenderedComponent.cpp
 	toeSubsystem.cpp
 	toeSubsystemItems.cpp
 	toeWorld.cpp
+	toeScriptingSubsystem.cpp
 
 	[h]
 	("h")
@@ -33,12 +35,14 @@ files
 	toeDefaultHitTest.h
 	toeEntity.h
 	toeEventArgs.h
+	toeFeatures.h
 	toeInput.h
 	toeIntrusiveList.h
 	toeSelfRenderedComponent.h
 	toeSubsystem.h
 	toeSubsystemItems.h
 	toeWorld.h
+	toeScriptingSubsystem.h
 }
 subprojects
 {

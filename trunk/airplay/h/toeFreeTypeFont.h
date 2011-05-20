@@ -13,6 +13,7 @@
 namespace TinyOpenEngine
 {
 	int32 toeGetScreenDPI();
+	struct CtoeFreeTypeAtlas;
 
 	// Length
 	struct CtoeLength
@@ -26,24 +27,60 @@ namespace TinyOpenEngine
 
 		iwfixed Value;
 		toeLengthUnit Unit;
-		int32 GetPx(int total) const
+		int32 GetPx(int32 total) const
 		{
+			if (Value == 0)
+				return 0;
+			int32 res = 0;
 			switch (Unit)
 			{
 			case PX:
-				return Value/IW_GEOM_ONE;
+				res = Value/IW_GEOM_ONE;
+				if (res == 0) { if (Value>0) res=1; else res=-1;}
+				break;
 			case PT:
-				return Value*toeGetScreenDPI()/72/IW_GEOM_ONE;
+				res = Value*toeGetScreenDPI()/72/IW_GEOM_ONE;
+				if (res == 0) { if (Value>0) res=1; else res=-1;}
+				break;
 			case PERCENT:
-				return Value*total/IW_GEOM_ONE;
+				res = Value*total/IW_GEOM_ONE;
+				if (res == 0 && total != 0) { if (Value*total>0) res=1; else res=-1;}
+				break;
+			default:
+				break;
 			}
-			return 0;
+			return res;
 		}
+		CtoeLength(int32 v, toeLengthUnit u):Value(v),Unit(u){}
 		CtoeLength():Value(0),Unit(PX){}
 		void Serialise();
 		void	ParseAttribute(CIwTextParserITX* pParser);
-	};
+		bool operator == (const CtoeLength & other) const
+		{
+			return (Value == other.Value)
+				&& (Unit == other.Unit || Value == 0);
+		}
+		
 
+	};
+	struct CtoeLength4
+	{
+		CtoeLength left;
+		CtoeLength top;
+		CtoeLength right;
+		CtoeLength bottom;
+
+		bool operator == (const CtoeLength4 & other) const
+		{
+			return (left == other.left)
+				&& (top == other.top)
+				&& (right == other.right)
+				&& (bottom == other.bottom);
+		}
+
+		void Serialise();
+		void ParseAttribute(CIwTextParserITX* pParser);
+	};
 	enum toeFreeTypeHAlign
 	{
 		TOE_FTHALIGN_NATURAL,
@@ -59,7 +96,7 @@ namespace TinyOpenEngine
 		int16 height;
 		int16 x;
 		int16 y;
-		CIwTexture* texture;
+		CtoeFreeTypeAtlas* texture;
 		CtoeFreeTypeGlyph():isLoaded(false),width(0),height(0),x(0),y(0),texture(0){}
 	};
 
@@ -103,8 +140,10 @@ namespace TinyOpenEngine
 
 	struct CtoeFreeTypeAtlas
 	{
+		bool isUploaded;
 		CIwTexture* texture;
 		CIwImage* image;
+		CIwTexture* GetTexture() { if (!isUploaded) { texture->Upload(); isUploaded = true; } return texture;}
 		uint32 mask[(TOE_GLYPHATLASSIZE/TOE_GLYPHSTEP)/32*(TOE_GLYPHATLASSIZE/TOE_GLYPHSTEP)];
 		bool GetMask(int16 x,int16 y) { int16 index = x+y*(TOE_GLYPHATLASSIZE/TOE_GLYPHSTEP); return 0!=(mask[index/32]&(1<<(index&31)));}
 		void SetMask(int16 x,int16 y) { int16 index = x+y*(TOE_GLYPHATLASSIZE/TOE_GLYPHSTEP); mask[index/32] |= (1<<(index&31));}
