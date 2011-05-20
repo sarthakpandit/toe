@@ -80,6 +80,42 @@ void CtoeLiveCameraFeed::BeforeInitialization(CtoeEntity* e)
 		}
 	}
 }
+void CtoeLiveCameraFeed::RequireImage(int16 reqw, int16 reqh)
+{
+	// Rotate image on 90'
+	if (FlipCoordinates())
+	{
+		int16 a = reqw; reqw = reqh; reqh = a;
+	}
+
+	if (image)
+	{
+		int16 imageW = image->GetWidth();
+		int16 imageH = image->GetHeight();
+		if (imageW >= reqw && imageH >= reqh)
+			return;
+		delete image;
+		delete [] completeBuffer;
+		delete [] activeBuffer;
+	}
+	feedWidth = reqw;
+	feedHeight = reqh;
+
+	int w = 1; while (w < reqw) w = w<<1;
+	int h = 1; while (h < reqh) h = h<<1;
+	IwTrace(TOE,("Allocate camera feed buffer %dx%d",w,h));
+	image = new CIwImage();
+	image->SetFormat(CIwImage::RGB_565);
+	image->SetWidth(w);
+	image->SetHeight(h);
+	image->SetBuffers();
+	completeBuffer = new int16[image->GetPitch()/2*image->GetHeight()];
+	activeBuffer = new int16[image->GetPitch()/2*image->GetHeight()];
+	texture = new CIwTexture();
+	texture->SetModifiable(true);
+	texture->SetMipMapping(false);
+	texture->SetImage(image);
+}
 // Callback that gets filled with camera buffer data
 int32 CtoeLiveCameraFeed::CameraUpdate(void* systemData, void* userData)
 {
@@ -92,60 +128,33 @@ int32 CtoeLiveCameraFeed::CameraUpdate(void* systemData, void* userData)
 
 	s3eCameraFrameData* m_Frame = (s3eCameraFrameData*)systemData;
 
-	if (!g_currentFeed->image)
-	{
-		int w = 1; while (w < m_Frame->m_Width) w = w<<1;
-		int h = 1; while (h < m_Frame->m_Height) h = h<<1;
-		CIwImage* image;
-		image = new CIwImage();
-		g_currentFeed->image = image;
-		image->SetFormat(CIwImage::RGB_565);
-		image->SetWidth(w);
-		image->SetHeight(h);
-		image->SetBuffers();
-		g_currentFeed->completeBuffer = new int16[image->GetPitch()/2*image->GetHeight()];
-		g_currentFeed->activeBuffer = new int16[image->GetPitch()/2*image->GetHeight()];
-		g_currentFeed->texture = new CIwTexture();
-		g_currentFeed->texture->SetModifiable(true);
-		//g_currentFeed->texture->SetMipMapping(false);
-		g_currentFeed->texture->SetImage(g_currentFeed->image);
-	}
-
-	// Copying frame data since it is not guaranteed to persist and will be
-	// overwritten with next buffer. Using the data directly will increase
-	// tearing but improve responsiveness. Note that s3eCamera beta does not
-	// lock the frame buffer so cannot guarantee no tearing. This will be
-	// addressed in the final version.
-	/*if (!g_currentFeed->m_FrameData ||
-			m_Frame->m_Width != g_currentFeed->m_FrameWidth ||
-			m_Frame->m_Height != g_currentFeed->m_FrameHeight)
-	{
-		g_currentFeed->m_FrameWidth = m_Frame->m_Width;
-		g_currentFeed->m_FrameHeight = m_Frame->m_Height;
-		g_currentFeed->m_FramePitch = m_Frame->m_Pitch;
-
-		g_currentFeed->m_FrameData = (uint16*)
-			s3eRealloc(g_currentFeed->m_FrameData, g_currentFeed->m_FrameHeight * m_Frame->m_Pitch);
-	}
-
-	if (g_currentFeed->m_FrameData)
-		memcpy(g_currentFeed->m_FrameData, m_Frame->m_Data, m_Frame->m_Pitch * m_Frame->m_Height);*/
+	g_currentFeed->RequireImage(m_Frame->m_Width,m_Frame->m_Height);
 
 	int16*texels;
 
-	texels = g_currentFeed->completeBuffer; g_currentFeed->completeBuffer=g_currentFeed->activeBuffer; g_currentFeed->activeBuffer = texels;
+	//texels = g_currentFeed->completeBuffer; g_currentFeed->completeBuffer=g_currentFeed->activeBuffer; g_currentFeed->activeBuffer = texels;
+	texels = g_currentFeed->activeBuffer;
 
-	for (int yy=0; yy<m_Frame->m_Height && yy<(int)g_currentFeed->image->GetHeight();++yy)
-		for (int xx=0; xx<m_Frame->m_Width && xx<(int)g_currentFeed->image->GetWidth();++xx)
-			*(int16*)(texels+g_currentFeed->image->GetPitch()/2*yy+xx) = *(int16*)((uint8*)m_Frame->m_Data+xx*2+yy*m_Frame->m_Pitch);
-	g_currentFeed->feedWidth = m_Frame->m_Width;
-	g_currentFeed->feedHeight = m_Frame->m_Height;
-	//g_currentFeed->texture->ChangeTexels(texels, CIwImage::RGB_565);
+	for (int yy=0; yy<(int)m_Frame->m_Height;++yy)
+		for (int xx=0; xx<(int)m_Frame->m_Width;++xx)
+		{
+			int dx = xx;
+			int dy = yy;
+			// Rotate image on 90'
+			if (g_currentFeed->FlipCoordinates())
+			{
+				dx = (int)m_Frame->m_Height-1-yy;
+				dy = xx;
+			}
+			*(int16*)(texels+g_currentFeed->image->GetPitch()/2*dy+dx) = *(int16*)((uint8*)m_Frame->m_Data+xx*2+yy*m_Frame->m_Pitch);
+		}
+
+	g_currentFeed->activeBuffer=g_currentFeed->completeBuffer; g_currentFeed->completeBuffer = texels;
 	g_currentFeed->feedUpdated = true;
 
 	return 0;
 }
-void CtoeLiveCameraFeed::Render()
+void CtoeLiveCameraFeed::Render(CtoeRenderContext*)
 {
 	// Display status info
     //int32 camStatus;

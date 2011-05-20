@@ -91,6 +91,7 @@ deployments
 	webos-icon="../content/icons/webos-icon.png"
 	webos-appid="com.101gr.com.drumkit"
 
+	symbian-icon-svg="../content/icons/symbian-icon-svg.svg"
 	symbian-icon1="../content/icons/symbian-icon1.bmp"
 	symbian-icon1-mask="../content/icons/symbian-icon1-mask.bmp"
 	symbian-icon2="../content/icons/symbian-icon2.bmp"
@@ -114,9 +115,11 @@ subprojects
 	TinyOpenEngine.ScreenSpace2D.mkf
 	TinyOpenEngine.Box2D.mkf
 	TinyOpenEngine.Camera.mkf
+	TinyOpenEngine.Geo.mkf
 	TinyOpenEngine.Lua.mkf
 	TinyOpenEngine.FreeType.mkf
 	TinyOpenEngine.SimpleMenu.mkf
+	TinyOpenEngine.Scene3D.mkf
 	#TinyOpenEngine.Ortho25D.mkf
 	modules/box2d/trunk/Box2D/Box2D.mkf
 }

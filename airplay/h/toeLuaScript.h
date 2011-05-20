@@ -2,12 +2,14 @@
 
 #include <IwResManager.h>
 #include <IwManagedList.h>
+#include "toeLua.h"
 
 namespace TinyOpenEngine
 {
 	class CtoeLuaScript : public CIwResource
 	{
 	private:
+		char* buffer;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeLuaScript);
@@ -19,7 +21,7 @@ namespace TinyOpenEngine
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
 
-
+		void AssignBuffer(char* buf);
 	};
 
 #ifdef IW_BUILD_RESOURCES

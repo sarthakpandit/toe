@@ -21,6 +21,10 @@ CtoeInputFilter::~CtoeInputFilter()
 void CtoeInputFilter::KeyboardKeyEvent(s3eKeyboardEvent*e)
 {
 	if (!world) return;
+	KeyContext kc;
+	kc.key = e->m_Key;
+	kc.pressed = e->m_Pressed!=0;
+	world->UnhandledKeyEvent(&kc);
 }
 int32 CtoeInputFilter::FindTouchContext(uint32 touchId) const
 {
@@ -102,12 +106,19 @@ void CtoeInputFilter::PointerMotionEvent(s3ePointerMotionEvent*e)
 }
 void CtoeInputFilter::TouchEvent(TouchContext& touchContext,int32 x,int32 y)
 {
+	touchContext.firstKnownPoistion.x = touchContext.lastKnownPoistion.x = touchContext.currentPoistion.x = x;
+	touchContext.firstKnownPoistion.y = touchContext.lastKnownPoistion.y = touchContext.currentPoistion.y = y;
+
 	context.screenSpacePoint.x = x;
 	context.screenSpacePoint.y = y;
 	context.filter = this;
 	context.touch = &touchContext;
 	context.callback =TouchEventCallback;
 	world->PointerHitTest(&context);
+	if (!touchContext.entityInFocus.HasEntity())
+	{
+		world->UnhandledTouchEvent(&touchContext);
+	}
 }
 bool CtoeInputFilter::TouchEventCallback(HitTestContext * context, const CtoeEntityWeakPointer & e)
 {
@@ -135,6 +146,8 @@ bool CtoeInputFilter::TouchEventCallback(HitTestContext * context, const CtoeEnt
 }
 void CtoeInputFilter::TouchReleaseEvent(TouchContext& touchContext,int32 x,int32 y)
 {
+	touchContext.currentPoistion.x = x;
+	touchContext.currentPoistion.y = y;
 	CtoeEntity* entityInFocus = touchContext.entityInFocus.Get(world);
 	if (entityInFocus)
 	{
@@ -144,9 +157,17 @@ void CtoeInputFilter::TouchReleaseEvent(TouchContext& touchContext,int32 x,int32
 		entityInFocus->SendMessage(PointerFoucusLost,&fl_args);
 		touchContext.entityInFocus = (CtoeEntity*)0;
 	}
+	else
+	{
+		world->UnhandledTouchReleaseEvent(&touchContext);
+	}
 }
 void CtoeInputFilter::TouchMotionEvent(TouchContext& touchContext,int32 x,int32 y)
 {
+	touchContext.currentPoistion.x = x;
+	touchContext.currentPoistion.y = y;
+	if (touchContext.currentPoistion == touchContext.lastKnownPoistion)
+		return;
 	CtoeEntity* entityInFocus = touchContext.entityInFocus.Get(world);
 	CtoePointerTouchMotionMessageArgs args;
 	if (entityInFocus)
@@ -154,15 +175,15 @@ void CtoeInputFilter::TouchMotionEvent(TouchContext& touchContext,int32 x,int32 
 		entityInFocus->SendMessage(PointerTouchMotion,&args);
 		if (args.IsHandled())
 		{
-			return;
+			goto eventProcessed;
 		}
 	}
-	/*context.screenSpacePoint.x = x;
-	context.screenSpacePoint.y = y;
-	context.filter = this;
-	context.touch = &touchContext;
-	context.callback =TouchMotionEventCallback;
-	world->PointerHitTest(&context);*/
+	else
+	{
+		world->UnhandledTouchMotionEvent(&touchContext);
+	}
+	eventProcessed:
+	touchContext.lastKnownPoistion = touchContext.currentPoistion;
 }
 bool CtoeInputFilter::TouchMotionEventCallback(HitTestContext * context, const CtoeEntityWeakPointer & e)
 {

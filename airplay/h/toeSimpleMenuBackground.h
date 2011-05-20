@@ -32,5 +32,12 @@ namespace TinyOpenEngine
 
 		virtual	void	ParseClose(CIwTextParserITX* pParser);
 #endif
+
+		bool operator == (const CtoeSimpleMenuBackground & other) const
+		{
+			//TODO: do a proper match
+			return (textureHash == other.textureHash)
+				&& (points.size() == points.size());
+		}
 	};
 }

@@ -7,12 +7,14 @@
 namespace TinyOpenEngine
 {
 	class CtoeSimpleMenuRoot;
+	class CtoeSimpleMenuItem;
 
 	class CtoeSimpleMenu : public CtoeSubsystem
 	{
 	protected:
 		uint32 menulayout;
 		CtoeSimpleMenuRoot* menu;
+		uint32 scriptSubsystemHash;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenu);
@@ -32,6 +34,12 @@ namespace TinyOpenEngine
 
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
+
+		virtual void UnhandledTouchEvent(TouchContext* touchContext);
+		virtual void UnhandledTouchReleaseEvent(TouchContext* touchContext);
+		virtual void UnhandledTouchMotionEvent(TouchContext* touchContext);
+		virtual void UnhandledKeyEvent(KeyContext* keyContext);
+		void Eval(CtoeSimpleMenuItem*item, const char*s);
 #ifdef IW_BUILD_RESOURCES
 
 		//Parses from text file: parses attribute/value pair.

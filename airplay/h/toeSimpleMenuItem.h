@@ -3,6 +3,7 @@
 #include <IwResManager.h>
 #include <IwManagedList.h>
 
+#include <toeInput.h>
 #include <toeFreeTypeFont.h>
 #include <toeSimpleMenuStyle.h>
 #include <toeSimpleMenuStyleSheet.h>
@@ -13,10 +14,11 @@ namespace TinyOpenEngine
 	{
 		CtoeSimpleMenuStyleSettings* parentStyle;
 		CtoeSimpleMenuStyleSheet* styleSheet;
-
+		CIwSVec2 viewportPos;
+		CIwSVec2 viewportSize;
 		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0){};
 	};
-
+	class CtoeSimpleMenuRoot;
 	class CtoeSimpleMenuItem : public CIwManaged
 	{
 	protected:
@@ -27,7 +29,8 @@ namespace TinyOpenEngine
 		uint32 state;
 		//CIwSVec4 margin;
 		//CIwSVec4 padding;
-
+		CtoeSimpleMenuRoot*root;
+		CtoeSimpleMenuItem*parent;
 		CtoeSimpleMenuStyle style;
 		CtoeSimpleMenuStyleSettings combinedStyle;
 	public:
@@ -45,26 +48,28 @@ namespace TinyOpenEngine
 		virtual void Prepare(toeSimpleMenuItemContext* renderContext,int16 width);
 		//Render image on the screen surface
 		virtual void Render(toeSimpleMenuItemContext* renderContext);
-
+		bool IsVisible(toeSimpleMenuItemContext* renderContext);
 		const CIwSVec2& GetOrigin() const {return origin;}
 		//Gets size of the item. It's only valid after Prepare method been executed
 		const CIwSVec2& GetSize() const {return size;}
 		virtual void SetOrigin(const CIwSVec2& v) { if (origin!=v) { origin=v;RearrangeChildItems(); }}
 
 		//Method walks through child items and collect active ones into plain list
-		virtual void CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection);
+		//virtual void CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection);
 
 		virtual void RearrangeChildItems();
 
-		inline int16 GetMarginLeft()const {return combinedStyle.Margin.x;}
-		inline int16 GetMarginTop()const {return combinedStyle.Margin.y;}
-		inline int16 GetMarginRight()const {return combinedStyle.Margin.z;}
-		inline int16 GetMarginBottom()const {return combinedStyle.Margin.w;}
+		inline int16 GetMarginLeft()const {return combinedStyle.GetMarginLeft(1);}
+		inline int16 GetMarginTop()const {return combinedStyle.GetMarginTop(1);}
+		inline int16 GetMarginRight()const {return combinedStyle.GetMarginRight(1);}
+		inline int16 GetMarginBottom()const {return combinedStyle.GetMarginBottom(1);}
 
-		inline int16 GetPaddingLeft()const {return combinedStyle.Padding.x;}
-		inline int16 GetPaddingTop()const {return combinedStyle.Padding.y;}
-		inline int16 GetPaddingRight()const {return combinedStyle.Padding.z;}
-		inline int16 GetPaddingBottom()const {return combinedStyle.Padding.w;}
+		inline int16 GetPaddingLeft()const {return combinedStyle.GetPaddingLeft(1);}
+		inline int16 GetPaddingTop()const {return combinedStyle.GetPaddingTop(1);}
+		inline int16 GetPaddingRight()const {return combinedStyle.GetPaddingRight(1);}
+		inline int16 GetPaddingBottom()const {return combinedStyle.GetPaddingBottom(1);}
+		inline CtoeSimpleMenuRoot*GetRoot()const{return root;}
+		inline CtoeSimpleMenuItem*GetParent()const{return parent;}
 
 		void CombineStyle(toeSimpleMenuItemContext* renderContext);
 		virtual void InheritStyle(CtoeSimpleMenuStyleSettings* parentSettings);
@@ -73,6 +78,16 @@ namespace TinyOpenEngine
 		virtual uint32 GetElementNameHash();
 		virtual uint32 GetElementClassHash();
 		virtual uint32 GetElementStateHash();
+		//Finds an active item in children
+		virtual CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & item);
+		virtual void SetFocus(bool f);
+		virtual void Touch(TouchContext* touchContext);
+		virtual void TouchReleased(TouchContext* touchContext);
+		virtual void TouchMotion(TouchContext* touchContext);
+		virtual bool IsActive() const {return false;}
+		virtual CtoeSimpleMenuItem* FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip);
+		virtual CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
+		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);

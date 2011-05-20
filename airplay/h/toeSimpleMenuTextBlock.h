@@ -10,8 +10,9 @@ namespace TinyOpenEngine
 	{
 	private:
 		char* utf8string;
+		CtoeSimpleMenuStyleSettings cachedWithCombinedStyle;
+		int16 cachedWithWidth;
 		CtoeFreeTypeGlyphLayoutData layoutData;
-		iwfixed textAlignment;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuTextBlock);

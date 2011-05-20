@@ -53,11 +53,6 @@ void CtoeLength::ParseAttribute(CIwTextParserITX* pParser)
 	pParser->ReadFixed(&Value);
 	uint32 unitHash;
 	pParser->ReadStringHash(&unitHash);
-	//uint32 hashPt = IwHashString("pt");
-	//uint32 hashPx = IwHashString("px");
-	//uint32 hashPercent = IwHashString("%");
-	//uint32 hashIn = IwHashString("in");
-	//uint32 hashCm = IwHashString("cm");
 
 	switch (unitHash)
 	{
@@ -80,8 +75,23 @@ void CtoeLength::ParseAttribute(CIwTextParserITX* pParser)
 		Value = Value*7200/254;
 		break;
 	default:
+		IwAssertMsg(TOE,false,("Unknown unit name (pt,px,in,cm)"));
 		break;
 	}
+}
+void CtoeLength4::Serialise()
+{
+	left.Serialise();
+	top.Serialise();
+	right.Serialise();
+	bottom.Serialise();
+}
+void CtoeLength4::ParseAttribute(CIwTextParserITX* pParser)
+{
+	left.ParseAttribute(pParser);
+	top.ParseAttribute(pParser);
+	right.ParseAttribute(pParser);
+	bottom.ParseAttribute(pParser);
 }
 bool CtoeFreeTypeAtlas::TryToAllocateRect(int16 x,int16 y,int16 w,int16 h)
 {
@@ -119,7 +129,9 @@ CtoeFreeTypeAtlas* CtoeFreeTypeFont::FindSpaceOnTextureAtlas(int16 w, int16 h, i
 
 	atlases.push_back();
 	res = &atlases.back();
+	res->isUploaded = false;
 	res->texture = new CIwTexture();
+	res->texture->SetMipMapping(false);
 	res->texture->SetModifiable(true);
 	res->texture->SetFormatHW(CIwImage::ABGR_4444);
 	res->texture->SetFormatSW(CIwImage::ABGR_4444);
@@ -159,6 +171,7 @@ CtoeFreeTypeGlyph* CtoeFreeTypeFont::GetGlyph(int32 charCode, int32 size)
 	CtoeFreeTypeGlyph* glyph = &set->glyphs[glyphIndex];
 	if (!glyph->isLoaded)
 	{
+		IwTrace(TOE, ("Load glyph %d (char %c)",glyphIndex, charCode));
 		FT_Set_Char_Size(face, size<<6, size<<6, 96, 96);
 		glyph->isLoaded = true;
 		if(FT_Load_Glyph( face, glyphIndex, FT_LOAD_DEFAULT ))
@@ -173,7 +186,12 @@ CtoeFreeTypeGlyph* CtoeFreeTypeFont::GetGlyph(int32 charCode, int32 size)
 			return glyph;
 		}
 		
-		FT_Glyph_To_Bitmap( &ft_glyph, ft_render_mode_normal, 0, 1 );
+		if (FT_Glyph_To_Bitmap( &ft_glyph, ft_render_mode_normal, 0, 1 ))
+		{
+			IwAssertMsg(TOE,false,("Can not get glyph bitmap"));
+			FT_Done_Glyph(ft_glyph);
+			return glyph;
+		}
 		FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)ft_glyph;
 		FT_Bitmap& bitmap=bitmap_glyph->bitmap;
 		glyph->width = (int16)bitmap.width;
@@ -187,10 +205,10 @@ CtoeFreeTypeGlyph* CtoeFreeTypeFont::GetGlyph(int32 charCode, int32 size)
 		if (a)
 		{
 			
-			glyph->texture = a->texture;
+			glyph->texture = a;
 			if (a->texture)
 			{
-				CIwImage &image = glyph->texture->GetImage();
+				CIwImage &image = glyph->texture->texture->GetImage();
 				uint8*texels =image.GetTexels();
 				for (int yy=0; yy<bitmap.rows;++yy)
 				{
@@ -202,8 +220,9 @@ CtoeFreeTypeGlyph* CtoeFreeTypeFont::GetGlyph(int32 charCode, int32 size)
 						*dst = ((src>>4)<<4)+15; ++dst;
 					}
 				}
-				glyph->texture->ChangeTexels(texels,CIwImage::ABGR_4444);
-				glyph->texture->Upload();
+				glyph->texture->texture->ChangeTexels(texels,CIwImage::ABGR_4444);
+				glyph->texture->isUploaded = false;
+				//glyph->texture->Upload();
 			}
 			//if (IsRightToLeft(charCode))
 			//{
@@ -520,7 +539,7 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour
 			IwGxDrawPrims(IW_GX_QUAD_LIST,0,cur-start);
 			start = cur;
 		}
-		if (prevTex != glyph->glyph->texture)
+		if (prevTex != glyph->glyph->texture->texture)
 		{
 			if (start != cur)
 			{
@@ -530,7 +549,7 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour
 				IwGxDrawPrims(IW_GX_QUAD_LIST,0,cur-start);
 				start = cur;
 			}
-			prevTex = glyph->glyph->texture;
+			prevTex = glyph->glyph->texture->GetTexture();
 			m = IW_GX_ALLOC_MATERIAL();
 			m->SetTexture(prevTex);
 			m->SetColEmissive(255,255,255,255);

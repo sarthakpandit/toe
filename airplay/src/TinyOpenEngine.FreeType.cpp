@@ -77,5 +77,5 @@ int32 TinyOpenEngine::toeGetScreenDPI()
 	default:
 		break;
 	}
-	return 120;
+	return 163;
 }

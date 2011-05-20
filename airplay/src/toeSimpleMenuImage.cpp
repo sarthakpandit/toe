@@ -92,7 +92,7 @@ void CtoeSimpleMenuImage::RearrangeChildItems()
 	int16 width = GetSize().x;
 	rectPos.x += GetMarginLeft()+GetPaddingLeft();
 	int16 contentWidth = width-(GetMarginLeft()+GetPaddingLeft()+GetMarginRight()+GetPaddingRight());
-	rectPos.x += (contentWidth-rectSize.x)/2;
+	rectPos.x += (contentWidth-rectSize.x)*combinedStyle.HorizontalAlignment/IW_GEOM_ONE;
 }
 //Render image on the screen surface
 void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
@@ -103,6 +103,11 @@ void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
 	IwGxSetMaterial(material);
 
 	IwGxDrawRectScreenSpace (&rectPos,&rectSize,&rectUV,&rectUVSize,rectColour);
+}
+uint32 CtoeSimpleMenuImage::GetElementNameHash()
+{
+	static uint32 name = IwHashString("IMAGE");
+	return name;
 }
 #ifdef IW_BUILD_RESOURCES
 

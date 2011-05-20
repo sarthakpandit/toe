@@ -27,6 +27,8 @@ void CtoeSimpleMenuStyleSettings::Serialise ()
 	Background.Serialise();
 	Margin.Serialise();
 	Padding.Serialise();
+	IwSerialiseInt32(HorizontalAlignment);
+	IwSerialiseInt32(VerticalAlignment);
 }
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuStyle::Serialise ()
@@ -39,6 +41,8 @@ void CtoeSimpleMenuStyle::Serialise ()
 	IwSerialiseBool(isBackground);
 	IwSerialiseBool(isMargin);
 	IwSerialiseBool(isPadding);
+	IwSerialiseBool(isHorizontalAlignment);
+	IwSerialiseBool(isVerticalAlignment);
 }
 
 #ifdef IW_BUILD_RESOURCES
@@ -71,65 +75,77 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 		isFontColor = true;
 		return true;
 	}
+	if (!stricmp("HorizontalAlignment", pAttrName))
+	{
+		pParser->ReadFixed(&settings.HorizontalAlignment);
+		isHorizontalAlignment = true;
+		return true;
+	}
+	if (!stricmp("VerticalAlignment", pAttrName))
+	{
+		pParser->ReadFixed(&settings.VerticalAlignment);
+		isVerticalAlignment = true;
+		return true;
+	}
 	if (!stricmp("margin", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Margin.x);
-		settings.Margin.y = settings.Margin.z = settings.Margin.w = settings.Margin.x;
+		settings.Margin.left.ParseAttribute(pParser);
+		settings.Margin.top = settings.Margin.right = settings.Margin.bottom = settings.Margin.left;
 		isMargin = true;
 		return true;
 	}
 	if (!stricmp("margin-left", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Margin.x);
+		settings.Margin.left.ParseAttribute(pParser);
 		isMargin = true;
 		return true;
 	}
 	if (!stricmp("margin-right", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Margin.z);
+		settings.Margin.right.ParseAttribute(pParser);
 		isMargin = true;
 		return true;
 	}
 	if (!stricmp("margin-top", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Margin.y);
+		settings.Margin.top.ParseAttribute(pParser);
 		isMargin = true;
 		return true;
 	}
 	if (!stricmp("margin-bottom", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Margin.w);
+		settings.Margin.bottom.ParseAttribute(pParser);
 		isMargin = true;
 		return true;
 	}
 	if (!stricmp("padding", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Padding.x);
-		settings.Padding.y = settings.Padding.z = settings.Padding.w = settings.Padding.x;
+		settings.Padding.left.ParseAttribute(pParser);
+		settings.Padding.top = settings.Padding.right = settings.Padding.bottom = settings.Padding.left;
 		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-left", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Padding.x);
+		settings.Padding.left.ParseAttribute(pParser);
 		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-right", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Padding.z);
+		settings.Padding.right.ParseAttribute(pParser);
 		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-top", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Padding.y);
+		settings.Padding.top.ParseAttribute(pParser);
 		isPadding = true;
 		return true;
 	}
 	if (!stricmp("padding-bottom", pAttrName))
 	{
-		pParser->ReadInt16(&settings.Padding.w);
+		settings.Padding.bottom.ParseAttribute(pParser);
 		isMargin = true;
 		return true;
 	}

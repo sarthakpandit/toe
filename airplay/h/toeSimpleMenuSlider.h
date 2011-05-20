@@ -23,8 +23,7 @@ namespace TinyOpenEngine
 		virtual void Prepare(toeSimpleMenuItemContext* renderContext,int16 width);
 		//Render image on the screen surface
 		virtual void Render(toeSimpleMenuItemContext* renderContext);
-		//Method walks through child items and collect active ones into plain list
-		virtual void CollectActiveItems(CIwArray<CtoeSimpleMenuItem*>& collection);
+		virtual bool IsActive() const {return true;}
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: parses attribute/value pair.
 		virtual	bool	ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName);
