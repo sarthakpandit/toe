@@ -14,30 +14,36 @@ namespace TinyOpenEngine
 	int toeLuaExit(lua_State* L)
 	{
 		toeExitApplication();
-		return 1;
+		return 0;
 	}
 	int toeLuaCloseWorld(lua_State* L)
 	{
 		toeCloseWorld();
-		return 1;
+		return 0;
 	}
 	int toeLuaOpenWorld(lua_State* L)
 	{
 		const char* s1 = luaL_checkstring(L,1);
 		const char* s2 = luaL_checkstring(L,2);
 		toeOpenWorld(s1,s2);
-		return 1;
+		return 0;
 	}
 	int toeLuaOpenGroupWorld(lua_State* L)
 	{
 		const char* s1 = luaL_checkstring(L,1);
 		toeOpenGroupWorld(s1);
-		return 1;
+		return 0;
+	}
+	int toeLuaAssertMsg(lua_State* L)
+	{
+		const char* s1 = luaL_checkstring(L,1);
+		IwAssertMsg(TOE,false,(s1));
+		return 0;
 	}
 	int toeLuaDeviceCheckPauseRequest(lua_State* L)
 	{
 		lua_pushboolean(L,s3eDeviceCheckPauseRequest());
-		return 1;
+		return 0;
 	}
 	int32 toeSendHTTPGetComplete(void* systemData, void* userData)
 	{
@@ -51,7 +57,7 @@ namespace TinyOpenEngine
 		const char* s1 = luaL_checkstring(L,1);
 		CIwHTTP* http = new CIwHTTP();
 		http->Get(s1, toeSendHTTPGetComplete, http);
-		return 1;
+		return 0;
 	}
 
 
@@ -109,6 +115,7 @@ namespace TinyOpenEngine
 		lua_register(state,"toeOpenWorld",toeLuaOpenWorld);
 		lua_register(state,"toeOpenGroupWorld",toeLuaOpenGroupWorld);
 		lua_register(state,"toeReadString",toeLuaReadString);
+		lua_register(state,"toeAssertMsg",toeLuaAssertMsg);
 
 		lua_register(state,"toeGetDeviceID",toeLuaGetDeviceID);
 		lua_register(state,"toeGetDevicePhone",toeLuaGetDevicePhone);

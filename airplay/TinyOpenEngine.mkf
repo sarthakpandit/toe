@@ -4,6 +4,8 @@ includepaths
 }
 files
 {
+	TinyOpenEngine.defines.txt
+
 	[src]
 	("src")
 	TinyOpenEngine.cpp
@@ -47,4 +49,5 @@ files
 subprojects
 {
 	iwutil
+	./modules/pugixml/pugixml.mkf
 }

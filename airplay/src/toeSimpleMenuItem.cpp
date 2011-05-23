@@ -42,7 +42,10 @@ void CtoeSimpleMenuItem::Serialise ()
 	IwSerialiseUInt32(styleClass);
 	IwSerialiseUInt32(state);
 }
-
+int CtoeSimpleMenuItem::Test()
+{
+	return 12;
+}
 void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
 	CombineStyle(renderContext);

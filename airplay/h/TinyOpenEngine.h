@@ -7,6 +7,9 @@ class CIwTextParserITX;
 namespace TinyOpenEngine
 {
 	class CtoeWorld;
+	class ItoeScriptingSubsystem;
+	class CtoeScriptableClassDeclaration;
+
 	void toeInit();
 	void toeTerminate();
 	void toeRunWorld(CtoeWorld*);
@@ -15,6 +18,8 @@ namespace TinyOpenEngine
 	void toeCloseWorld();
 	void toeTrace(const char*, ...);
 	bool toeIsTraceEnabled();
+	void toeRegisterClass(CtoeScriptableClassDeclaration*);
+	void toeRegisterScriptableClasses(ItoeScriptingSubsystem*);
 
 	void toeSerialiseString(std::string & s);
 	void toeReadString(CIwTextParserITX* pParser, std::string * s);

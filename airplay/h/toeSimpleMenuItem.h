@@ -88,6 +88,8 @@ namespace TinyOpenEngine
 		virtual CtoeSimpleMenuItem* FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip);
 		virtual CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
 		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
+
+		int Test();
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);
