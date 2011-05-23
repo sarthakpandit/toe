@@ -8,6 +8,7 @@ option
 defines 
 { 
 	FT2_BUILD_LIBRARY
+	PUGIXML_NO_STL
 } 
 assets
 {

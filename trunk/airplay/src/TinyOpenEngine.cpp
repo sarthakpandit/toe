@@ -3,6 +3,7 @@
 //#include <s3eTouchpad.h>
 #include "TinyOpenEngine.h"
 #include "toeWorld.h"
+#include "toeScriptingSubsystem.h"
 #include "toeComponent.h"
 #include "toeSubsystem.h"
 #include "toeDefaultHitTest.h"
@@ -16,7 +17,7 @@ namespace TinyOpenEngine
 	CIwStringL* nextWorld = 0;
 	uint32 nextWorldHash = 0;
 	s3eSocket* g_toeTraceSocket;
-
+	CIwArray<CtoeScriptableClassDeclaration*>* toe_scriptClassDeclarations=0;
 
 	void toeLoadAndRunNextWorld();
 	void toeExitApplication()
@@ -123,6 +124,8 @@ void TinyOpenEngine::toeInit()
 	IW_CLASS_REGISTER(CtoeWorld);
 	IW_CLASS_REGISTER(CtoeDefaultHitTest);
 
+	toe_scriptClassDeclarations = new CIwArray<CtoeScriptableClassDeclaration*>;
+
 	if (!inputFilter)
 		inputFilter = new CtoeInputFilter();
 	
@@ -174,6 +177,17 @@ void TinyOpenEngine::toeTerminate()
 		s3ePointerUnRegister(S3E_POINTER_BUTTON_EVENT, (s3eCallback)toePointerButtonEvent);
 		s3ePointerUnRegister(S3E_POINTER_MOTION_EVENT, (s3eCallback)toePointerMotionEvent);
 	}
+
+	if (toe_scriptClassDeclarations)
+	{
+		for (CIwArray<CtoeScriptableClassDeclaration*>::iterator i = toe_scriptClassDeclarations->begin(); i!=toe_scriptClassDeclarations->end(); ++i)
+		{
+			delete(*i);
+		}
+		delete toe_scriptClassDeclarations;
+		toe_scriptClassDeclarations = 0;
+	}
+
 	if (toeIsTraceEnabled())
 		toeTrace("Application closed gracefully");
 }
@@ -290,4 +304,17 @@ void TinyOpenEngine::toeRunWorld(CtoeWorld*w)
 	if (!w->IsClosed())
 		w->Close();
 	inputFilter->SetCurrentWorld(old);
+}
+void TinyOpenEngine::toeRegisterClass(CtoeScriptableClassDeclaration* c)
+{
+	toe_scriptClassDeclarations->push_back(c);
+}
+void TinyOpenEngine::toeRegisterScriptableClasses(ItoeScriptingSubsystem* system)
+{
+	if (!toe_scriptClassDeclarations)
+		return;
+	for (CIwArray<CtoeScriptableClassDeclaration*>::iterator i = toe_scriptClassDeclarations->begin(); i!=toe_scriptClassDeclarations->end(); ++i)
+	{
+		system->RegisterClass(*i);
+	}
 }

@@ -14,6 +14,7 @@ namespace TinyOpenEngine
 	{
 	protected:
 		lua_State *L;
+		int numRes;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeLuaState);
@@ -31,7 +32,13 @@ namespace TinyOpenEngine
 
 		//Reads/writes a binary file using @a IwSerialise interface.
 		virtual void Serialise ();
+
+		virtual void RegisterClass(CtoeScriptableClassDeclaration* c);
 		virtual void Eval(const char*s);
+
+		virtual void Return(int i);
+
+		int CallMethod(CtoeScriptableClassDeclaration* c,CtoeScriptableMethodDeclaration* m,void*o);
 #ifdef IW_BUILD_RESOURCES
 
 		//Parses from text file: parses attribute/value pair.

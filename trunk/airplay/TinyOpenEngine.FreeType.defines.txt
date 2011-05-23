@@ -1,1 +1,0 @@
-FT2_BUILD_LIBRARY	free type 2
