@@ -18,6 +18,18 @@ namespace TinyOpenEngine
 	{
 		void* userData;
 	};
+	int toeLuaAssert(lua_State *L, int res)
+	{
+		if (res)
+		{
+			const char *msg = lua_tostring(L, -1);
+			if (!msg) msg = "(error with no message)";
+			IwAssertMsg(TOE,false,(msg));
+			//fprintf(stderr, "ERROR: %s\n", msg);
+			lua_pop(L, 1);
+		}
+		return res;
+	}
 
 	 void toeLuaStackDump (lua_State *L) {
           int i=lua_gettop(L);
@@ -74,10 +86,13 @@ namespace TinyOpenEngine
   int CtoeLuaState::CallMethod(CtoeScriptableClassDeclaration* c,CtoeScriptableMethodDeclaration* m,void*o)
   {
 	  int prevNumRes = numRes;
+	  int prevcurrentArg = currentArg;
+	  currentArg = 0;
 	  numRes = 0;
 	  m->Call(this,c, o);
 	  int r = numRes;
 	  numRes = prevNumRes;
+	  currentArg = prevcurrentArg;
 	  return r;
   }
   // create a new T object and
@@ -91,7 +106,7 @@ namespace TinyOpenEngine
     //luaL_getmetatable(L, T::className);  // lookup metatable in Lua registry
     //lua_setmetatable(L, -2);
     //return 1;  // userdata containing pointer to T object
-	  toeLuaStackDump(L);
+	//  toeLuaStackDump(L);
 	  CtoeScriptableClassDeclaration*l = static_cast<CtoeScriptableClassDeclaration*>(lua_touserdata(L, lua_upvalueindex(1)));
 	  lua_remove(L, 1);
 	  void* instance = l->CreateInstance();
@@ -99,19 +114,15 @@ namespace TinyOpenEngine
 	  ud->userData = instance;
 	  luaL_getmetatable(L, l->GetClassName());
 	  lua_setmetatable(L, -2);
-	  toeLuaStackDump(L);
+	 // toeLuaStackDump(L);
 	  return 1;
   }
 
   // garbage collection metamethod
   static int gc_T(lua_State *L) {
-    //userdataType *ud = static_cast<userdataType*>(lua_touserdata(L, 1));
-    //T *obj = ud->pT;
-    //delete obj;  // call destructor for T objects
-	  CtoeScriptableClassDeclaration*l = static_cast<CtoeScriptableClassDeclaration*>(lua_touserdata(L, lua_upvalueindex(1)));
-	  //lua_remove(L, 1);
-	  toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(lua_touserdata(L, 1));
-	  l->DestroyInstance(ud->userData);
+	  //CtoeScriptableClassDeclaration*l = static_cast<CtoeScriptableClassDeclaration*>(lua_touserdata(L, lua_upvalueindex(1)));
+	  //toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(lua_touserdata(L, 1));
+	  //l->DestroyInstance(ud->userData);
 	return 0;
   }
 
@@ -129,10 +140,57 @@ namespace TinyOpenEngine
 	  return 1;
   }
 }
+void CtoeLuaState::Return()
+{
+}
 void CtoeLuaState::Return(int i)
 {
 	++numRes;
 	lua_pushinteger(L,i);
+}
+void CtoeLuaState::Return(float i)
+{
+	++numRes;
+	lua_pushnumber(L,i);
+}
+void CtoeLuaState::Return(const char*s)
+{
+	++numRes;
+	lua_pushstring(L,s);
+}
+void CtoeLuaState::Return(void*instance,CtoeScriptableClassDeclaration*l)
+{
+	++numRes;
+	if (!instance)
+	{
+		lua_pushnil(L);
+		return;
+	}
+	toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(lua_newuserdata(L, sizeof(toeLuaUserDataContainer)));
+	ud->userData = instance;
+	luaL_getmetatable(L, l->GetClassName());
+	lua_setmetatable(L, -2);
+}
+
+int CtoeLuaState::PopArgInt()
+{
+	++currentArg;
+	return luaL_checkint(L,currentArg);
+}
+float CtoeLuaState::PopArgFloat()
+{
+	++currentArg;
+	return (float)luaL_checknumber(L,currentArg);
+}
+const char* CtoeLuaState::PopArgStr()
+{
+	++currentArg;
+	return luaL_checkstring(L,currentArg);
+}
+void* CtoeLuaState::PopArgClass(CtoeScriptableClassDeclaration*c)
+{
+	++currentArg;
+	return luaL_checkudata(L,currentArg,c->GetClassName());
 }
 
 //Constructor
@@ -140,6 +198,7 @@ CtoeLuaState::CtoeLuaState()
 {
 	L = 0;
 	numRes = 0;
+	currentArg = 0;
 }
 
 //Desctructor
@@ -208,13 +267,11 @@ void CtoeLuaState::RegisterClass(CtoeScriptableClassDeclaration* c)
     lua_pushliteral(L, "__tostring");
 	lua_pushlightuserdata(L, (void*)c);
 	lua_pushcclosure(L, tostring_T, 1);
-    //lua_pushcfunction(L, tostring_T);
     lua_settable(L, metatable);
 
     lua_pushliteral(L, "__gc");
 	lua_pushlightuserdata(L, (void*)c);
 	lua_pushcclosure(L, gc_T, 1);
-    //lua_pushcfunction(L, gc_T);
     lua_settable(L, metatable);
 
     lua_newtable(L);                // mt for method table
@@ -222,7 +279,6 @@ void CtoeLuaState::RegisterClass(CtoeScriptableClassDeclaration* c)
     lua_pushliteral(L, "__call");
 	lua_pushlightuserdata(L, (void*)c);
 	lua_pushcclosure(L, new_T, 1);
-    //lua_pushcfunction(L, new_T);
     lua_pushliteral(L, "new");
     lua_pushvalue(L, -2);           // dup new_T function
     lua_settable(L, methods);       // add new_T to method table
@@ -256,17 +312,22 @@ void CtoeLuaState::RegisterClass(CtoeScriptableClassDeclaration* c)
     lua_pop(L, 2);  // drop metatable and method table
 
 }
-void CtoeLuaState::Eval(const char*s)
+void CtoeLuaState::Eval(const char*s,void* instance, CtoeScriptableClassDeclaration*c)
 {
-	int res = luaL_dostring(L,s);
-	if (res)
+	std::string str = std::string("return function (self)\n")+s+"\nend";
+	if (!toeLuaAssert(L, luaL_loadstring(L, str.c_str())))
 	{
-		const char *msg = lua_tostring(L, -1);
-		if (!msg) msg = "(error with no message)";
-		IwAssertMsg(TOE,false,(msg));
-		//fprintf(stderr, "ERROR: %s\n", msg);
-		lua_pop(L, 1);
+		if (!toeLuaAssert(L, lua_pcall(L, 0, LUA_MULTRET, 0)))
+		{
+			Return(instance,c);
+			--numRes;
+			toeLuaAssert(L, lua_pcall(L, 1, LUA_MULTRET, 0));
+		}
 	}
+	else
+	{
+	}
+	//int res = luaL_dostring(L,s);
 }
 #ifdef IW_BUILD_RESOURCES
 

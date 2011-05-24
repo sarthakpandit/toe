@@ -25,6 +25,8 @@ files
 	toeSubsystemItems.cpp
 	toeWorld.cpp
 	toeScriptingSubsystem.cpp
+	toeUtils.cpp
+	toeConfig.cpp
 
 	[h]
 	("h")
@@ -45,6 +47,9 @@ files
 	toeSubsystemItems.h
 	toeWorld.h
 	toeScriptingSubsystem.h
+	toeUtils.h
+	toeConfig.h
+	toeScriptingBinds.h 
 }
 subprojects
 {

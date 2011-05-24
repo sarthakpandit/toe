@@ -1,6 +1,7 @@
 #include <IwTextParserITX.h>
 #include <IwResManager.h>
 #include <IwGx.h>
+#include "toeSimpleMenuRoot.h"
 #include "toeSimpleMenuItem.h"
 #include "toeSimpleMenuTextBlock.h"
 #include "toeSimpleMenuImage.h"
@@ -17,6 +18,7 @@ IW_CLASS_FACTORY(CtoeSimpleMenuItem);
 //This macro is required within some source file for every class derived from CIwManaged. It implements essential functionality
 IW_MANAGED_IMPLEMENT(CtoeSimpleMenuItem);
 
+
 //Constructor
 CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 {
@@ -30,6 +32,16 @@ CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
 {
 	childItems.Delete();
 }
+//Get scriptable class declaration
+CtoeScriptableClassDeclaration* CtoeSimpleMenuItem::GetClassDescription()
+{
+	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuItem> d ("CtoeSimpleMenuItem",
+			ScriptTraits::Method("Test", &CtoeSimpleMenuItem::Test),
+			ScriptTraits::Method("TestInt", &CtoeSimpleMenuItem::TestInt),
+			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuItem::GetRoot),
+			0);
+	return &d;
+}
 
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuItem::Serialise ()
@@ -42,10 +54,22 @@ void CtoeSimpleMenuItem::Serialise ()
 	IwSerialiseUInt32(styleClass);
 	IwSerialiseUInt32(state);
 }
-int CtoeSimpleMenuItem::Test()
+
+void CtoeSimpleMenuItem::Test()
+{
+}
+int CtoeSimpleMenuItem::TestInt()
 {
 	return 12;
 }
+void CtoeSimpleMenuItem::TestA(int a)
+{
+}
+int CtoeSimpleMenuItem::TestIntA(int a)
+{
+	return a+10;
+}
+
 void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
 	CombineStyle(renderContext);

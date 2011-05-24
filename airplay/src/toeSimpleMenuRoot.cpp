@@ -37,7 +37,14 @@ CtoeSimpleMenuRoot::~CtoeSimpleMenuRoot()
 {
 	childItems.Delete();
 }
-
+//Get scriptable class declaration
+CtoeScriptableClassDeclaration* CtoeSimpleMenuRoot::GetClassDescription()
+{
+	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuRoot> d ("CtoeSimpleMenuRoot",
+//			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuRoot::GetRoot),
+			0);
+	return &d;
+}
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuRoot::Serialise ()
 {

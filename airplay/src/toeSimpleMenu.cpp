@@ -94,7 +94,7 @@ void CtoeSimpleMenu::Eval(CtoeSimpleMenuItem*item, const char*s)
 	ItoeScriptingSubsystem* i = dynamic_cast<ItoeScriptingSubsystem*>(toeWorld->GetSubsystem(scriptSubsystemHash));
 	if (i)
 	{
-		i->Eval(s);
+		i->Eval(s, item, item->GetClassDescription());
 	}
 }
 

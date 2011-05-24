@@ -14,6 +14,7 @@ namespace TinyOpenEngine
 	{
 	protected:
 		lua_State *L;
+		int currentArg;
 		int numRes;
 	public:
 		//Declare managed class
@@ -34,9 +35,18 @@ namespace TinyOpenEngine
 		virtual void Serialise ();
 
 		virtual void RegisterClass(CtoeScriptableClassDeclaration* c);
-		virtual void Eval(const char*s);
+		virtual void Eval(const char*s, void* instance, CtoeScriptableClassDeclaration*c);
 
+		virtual void Return();
 		virtual void Return(int i);
+		virtual void Return(float i);
+		virtual void Return(const char*);
+		virtual void Return(void*,CtoeScriptableClassDeclaration*);
+
+		virtual int PopArgInt();
+		virtual float PopArgFloat();
+		virtual const char* PopArgStr();
+		virtual void* PopArgClass(CtoeScriptableClassDeclaration*);
 
 		int CallMethod(CtoeScriptableClassDeclaration* c,CtoeScriptableMethodDeclaration* m,void*o);
 #ifdef IW_BUILD_RESOURCES
