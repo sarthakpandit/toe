@@ -7,6 +7,7 @@
 #include <toeFreeTypeFont.h>
 #include <toeSimpleMenuStyle.h>
 #include <toeSimpleMenuStyleSheet.h>
+#include <toeScriptingSubsystem.h>
 
 namespace TinyOpenEngine
 {
@@ -36,6 +37,8 @@ namespace TinyOpenEngine
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuItem);
+		//Get scriptable class declaration
+		static CtoeScriptableClassDeclaration* GetClassDescription();
 		//Constructor
 		CtoeSimpleMenuItem();
 		//Desctructor
@@ -89,7 +92,10 @@ namespace TinyOpenEngine
 		virtual CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
 		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
 
-		int Test();
+		void Test();
+		int TestInt();
+		void TestA(int a);
+		int TestIntA(int a);
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);

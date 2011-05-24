@@ -53,9 +53,13 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	IW_CLASS_REGISTER(CtoeSimpleMenuRow);
 	IW_CLASS_REGISTER(CtoeSimpleMenuGrid);
 
-	toeRegisterClass(new TtoeScriptableClassDeclaration<CtoeSimpleMenuItem>("CtoeSimpleMenuItem",
-		new TtoeScriptableMethodDeclarationR<CtoeSimpleMenuItem,int>("Test", &CtoeSimpleMenuItem::Test),
-		0));
+	//void* test = ScriptTraits::Method("Test", &CtoeSimpleMenuItem::Test);
+
+	
+	toeRegisterClass(CtoeSimpleMenuItem::GetClassDescription());
+	//toeRegisterClass(new TtoeScriptableClassDeclaration<CtoeSimpleMenuItem>("CtoeSimpleMenuItem",
+	//	new TtoeScriptableMethodDeclarationR<CtoeSimpleMenuItem,int>("Test", &CtoeSimpleMenuItem::Test),
+	//	0));
 }
 
 void TinyOpenEngine::toeSimpleMenuTerminate()

@@ -182,7 +182,8 @@ void TinyOpenEngine::toeTerminate()
 	{
 		for (CIwArray<CtoeScriptableClassDeclaration*>::iterator i = toe_scriptClassDeclarations->begin(); i!=toe_scriptClassDeclarations->end(); ++i)
 		{
-			delete(*i);
+			(*i)->Close();
+			//delete(*i);
 		}
 		delete toe_scriptClassDeclarations;
 		toe_scriptClassDeclarations = 0;
