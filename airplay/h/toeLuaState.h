@@ -37,6 +37,7 @@ namespace TinyOpenEngine
 		virtual void RegisterClass(CtoeScriptableClassDeclaration* c);
 		virtual void Eval(const char*s, void* instance, CtoeScriptableClassDeclaration*c);
 
+		virtual void ReturnNil();
 		virtual void Return();
 		virtual void Return(int i);
 		virtual void Return(float i);
@@ -48,6 +49,9 @@ namespace TinyOpenEngine
 		virtual const char* PopArgStr();
 		virtual void* PopArgClass(CtoeScriptableClassDeclaration*);
 
+	protected:
+		static int toeLuaMethodCall(lua_State *L);
+		static int toeLuaStaticMethodCall(lua_State *L);
 		int CallMethod(CtoeScriptableClassDeclaration* c,CtoeScriptableMethodDeclaration* m,void*o);
 #ifdef IW_BUILD_RESOURCES
 

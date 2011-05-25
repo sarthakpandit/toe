@@ -43,6 +43,7 @@ namespace TinyOpenEngine
 		virtual void RegisterClass(CtoeScriptableClassDeclaration*)=0;
 
 		virtual void Return()=0;
+		virtual void ReturnNil()=0;
 		virtual void Return(int i)=0;
 		virtual void Return(float i)=0;
 		virtual void Return(const char*)=0;

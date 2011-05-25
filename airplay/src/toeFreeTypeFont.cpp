@@ -93,6 +93,17 @@ void CtoeLength4::ParseAttribute(CIwTextParserITX* pParser)
 	right.ParseAttribute(pParser);
 	bottom.ParseAttribute(pParser);
 }
+void CtoeLength2::Serialise()
+{
+	x.Serialise();
+	y.Serialise();
+}
+void CtoeLength2::ParseAttribute(CIwTextParserITX* pParser)
+{
+	x.ParseAttribute(pParser);
+	y.ParseAttribute(pParser);
+	
+}
 bool CtoeFreeTypeAtlas::TryToAllocateRect(int16 x,int16 y,int16 w,int16 h)
 {
 	for (int16 yy=y; yy<y+h; ++yy)

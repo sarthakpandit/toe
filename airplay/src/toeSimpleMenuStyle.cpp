@@ -27,6 +27,12 @@ void CtoeSimpleMenuStyleSettings::Serialise ()
 	Background.Serialise();
 	Margin.Serialise();
 	Padding.Serialise();
+	Border.Serialise();
+	BorderColor.Serialise();
+	ShadowColor.Serialise();
+	ShadowSize.Serialise();
+	ShadowOffset.Serialise();
+	IwSerialiseBool(DropShadow);
 	IwSerialiseInt32(HorizontalAlignment);
 	IwSerialiseInt32(VerticalAlignment);
 }
@@ -41,6 +47,12 @@ void CtoeSimpleMenuStyle::Serialise ()
 	IwSerialiseBool(isBackground);
 	IwSerialiseBool(isMargin);
 	IwSerialiseBool(isPadding);
+	IwSerialiseBool(isBorder);
+	IwSerialiseBool(isBorderColor);
+	IwSerialiseBool(isShadowColor);
+	IwSerialiseBool(isShadowOffset);
+	IwSerialiseBool(isShadowSize);
+	IwSerialiseBool(isDropShadow);
 	IwSerialiseBool(isHorizontalAlignment);
 	IwSerialiseBool(isVerticalAlignment);
 }
@@ -75,6 +87,22 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 		isFontColor = true;
 		return true;
 	}
+	if (!stricmp("borderColour",pAttrName) || !stricmp("borderColor",pAttrName))
+	{
+		uint8 c[4];
+		pParser->ReadUInt8Array(c,4);
+		settings.BorderColor.Set(c[0],c[1],c[2],c[3]);
+		isBorderColor = true;
+		return true;
+	}
+	if (!stricmp("shadowColour",pAttrName) || !stricmp("shadowColor",pAttrName))
+	{
+		uint8 c[4];
+		pParser->ReadUInt8Array(c,4);
+		settings.ShadowColor.Set(c[0],c[1],c[2],c[3]);
+		isShadowColor = true;
+		return true;
+	}
 	if (!stricmp("HorizontalAlignment", pAttrName))
 	{
 		pParser->ReadFixed(&settings.HorizontalAlignment);
@@ -85,6 +113,24 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 	{
 		pParser->ReadFixed(&settings.VerticalAlignment);
 		isVerticalAlignment = true;
+		return true;
+	}
+	if (!stricmp("shadow-offset", pAttrName))
+	{
+		settings.ShadowOffset.ParseAttribute(pParser);
+		isShadowOffset = true;
+		return true;
+	}
+	if (!stricmp("shadow-size", pAttrName))
+	{
+		settings.ShadowSize.ParseAttribute(pParser);
+		isShadowSize = true;
+		return true;
+	}
+	if (!stricmp("drop-shadow", pAttrName))
+	{
+		pParser->ReadBool(&settings.DropShadow);
+		isDropShadow = true;
 		return true;
 	}
 	if (!stricmp("margin", pAttrName))
@@ -118,6 +164,7 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 		isMargin = true;
 		return true;
 	}
+
 	if (!stricmp("padding", pAttrName))
 	{
 		settings.Padding.left.ParseAttribute(pParser);
@@ -149,6 +196,39 @@ bool	CtoeSimpleMenuStyle::ParseAttribute(CIwTextParserITX* pParser, const char* 
 		isMargin = true;
 		return true;
 	}
+
+	if (!stricmp("border", pAttrName))
+	{
+		settings.Border.left.ParseAttribute(pParser);
+		settings.Border.top = settings.Border.right = settings.Border.bottom = settings.Border.left;
+		isBorder = true;
+		return true;
+	}
+	if (!stricmp("border-left", pAttrName))
+	{
+		settings.Border.left.ParseAttribute(pParser);
+		isBorder = true;
+		return true;
+	}
+	if (!stricmp("border-right", pAttrName))
+	{
+		settings.Border.right.ParseAttribute(pParser);
+		isBorder = true;
+		return true;
+	}
+	if (!stricmp("border-top", pAttrName))
+	{
+		settings.Border.top.ParseAttribute(pParser);
+		isBorder = true;
+		return true;
+	}
+	if (!stricmp("border-bottom", pAttrName))
+	{
+		settings.Border.bottom.ParseAttribute(pParser);
+		isBorder = true;
+		return true;
+	}
+
 	return CIwManaged::ParseAttribute(pParser, pAttrName);
 }
 

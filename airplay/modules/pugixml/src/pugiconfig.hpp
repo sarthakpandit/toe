@@ -22,11 +22,11 @@
 
 // Uncomment this to disable STL
 // Note: you can't use XPath with PUGIXML_NO_STL
-// #define PUGIXML_NO_STL
+#define PUGIXML_NO_STL 1
 
 // Uncomment this to disable exceptions
 // Note: you can't use XPath with PUGIXML_NO_EXCEPTIONS
-// #define PUGIXML_NO_EXCEPTIONS
+#define PUGIXML_NO_EXCEPTIONS 1
 
 // Set this to control attributes for public classes/functions, i.e.:
 // #define PUGIXML_API __declspec(dllexport) // to export all public symbols from DLL
