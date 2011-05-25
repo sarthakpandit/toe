@@ -27,6 +27,9 @@ namespace TinyOpenEngine
 
 		iwfixed Value;
 		toeLengthUnit Unit;
+
+		inline bool IsZero() const {return Value == 0;}
+
 		int32 GetPx(int32 total) const
 		{
 			if (Value == 0)
@@ -63,6 +66,20 @@ namespace TinyOpenEngine
 		
 
 	};
+	struct CtoeLength2
+	{
+		CtoeLength x;
+		CtoeLength y;
+		inline bool IsZero() const {return x.IsZero() && y.IsZero();}
+		bool operator == (const CtoeLength2 & other) const
+		{
+			return (x == other.y)
+				&& (x == other.y);
+		}
+
+		void Serialise();
+		void ParseAttribute(CIwTextParserITX* pParser);
+	};
 	struct CtoeLength4
 	{
 		CtoeLength left;
@@ -70,6 +87,7 @@ namespace TinyOpenEngine
 		CtoeLength right;
 		CtoeLength bottom;
 
+		inline bool IsZero() const {return left.IsZero() && right.IsZero() && top.IsZero() && bottom.IsZero();}
 		bool operator == (const CtoeLength4 & other) const
 		{
 			return (left == other.left)

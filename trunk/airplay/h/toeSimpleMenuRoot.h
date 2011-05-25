@@ -34,6 +34,8 @@ namespace TinyOpenEngine
 		IW_MANAGED_DECLARE(CtoeSimpleMenuRoot);
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
+		//Get scriptable class declaration
+		virtual CtoeScriptableClassDeclaration* GetInstanceClassDescription() {return GetClassDescription(); };
 		//Constructor
 		CtoeSimpleMenuRoot();
 		//Desctructor

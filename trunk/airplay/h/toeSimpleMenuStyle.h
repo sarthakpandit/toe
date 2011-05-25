@@ -16,9 +16,21 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuBackground Background;
 		CtoeLength4 Margin;
 		CtoeLength4 Padding;
+		CtoeLength4 Border;
+		CIwColour BorderColor;
+		CIwColour ShadowColor;
+		CtoeLength ShadowSize;
+		CtoeLength2 ShadowOffset;
+		bool DropShadow;
 		iwfixed HorizontalAlignment;
 		iwfixed VerticalAlignment;
-		CtoeSimpleMenuStyleSettings():FontHash(0),Font(0),FontSize(8,CtoeLength::PT),HorizontalAlignment(0),VerticalAlignment(IW_GEOM_ONE/2){ FontColor.Set(0xFF000000);}
+		CtoeSimpleMenuStyleSettings():
+			FontHash(0),Font(0),
+			FontSize(8,CtoeLength::PT),
+			HorizontalAlignment(0),VerticalAlignment(IW_GEOM_ONE/2),
+			ShadowSize(3, CtoeLength::PT),
+			DropShadow(false)
+			{ FontColor.Set(0xFF000000); BorderColor.Set(0xFF000000); ShadowColor.Set(0x40000000);}
 		void Serialise();
 		void Inherit(CtoeSimpleMenuStyleSettings* other)
 		{
@@ -28,6 +40,9 @@ namespace TinyOpenEngine
 			Font = other->Font;
 			FontSize = other->FontSize;
 			FontColor = other->FontColor;
+			BorderColor = other->BorderColor;
+			ShadowSize = other->ShadowSize;
+			ShadowOffset = other->ShadowOffset;
 			HorizontalAlignment = other->HorizontalAlignment;
 			VerticalAlignment = other->VerticalAlignment;
 		}
@@ -35,6 +50,11 @@ namespace TinyOpenEngine
 		inline int16 GetMarginTop(int16 total)const {return (int16)Margin.top.GetPx(total);}
 		inline int16 GetMarginRight(int16 total)const {return (int16)Margin.right.GetPx(total);}
 		inline int16 GetMarginBottom(int16 total)const {return (int16)Margin.bottom.GetPx(total);}
+
+		inline int16 GetBorderLeft(int16 total)const {return (int16)Border.left.GetPx(total);}
+		inline int16 GetBorderTop(int16 total)const {return (int16)Border.top.GetPx(total);}
+		inline int16 GetBorderRight(int16 total)const {return (int16)Border.right.GetPx(total);}
+		inline int16 GetBorderBottom(int16 total)const {return (int16)Border.bottom.GetPx(total);}
 
 		inline int16 GetPaddingLeft(int16 total)const {return (int16)Padding.left.GetPx(total);}
 		inline int16 GetPaddingTop(int16 total)const {return (int16)Padding.top.GetPx(total);}
@@ -49,6 +69,12 @@ namespace TinyOpenEngine
 				&& (Background == other.Background)
 				&& (Margin == other.Margin)
 				&& (Padding == other.Padding)
+				&& (Border == other.Border)
+				&& (ShadowColor == other.ShadowColor)
+				&& (ShadowOffset == other.ShadowOffset)
+				&& (ShadowColor == other.ShadowColor)
+				&& (DropShadow == other.DropShadow)
+				&& (BorderColor == other.BorderColor)
 				&& (VerticalAlignment == other.VerticalAlignment)
 				&& (HorizontalAlignment == other.HorizontalAlignment);
 		}
@@ -65,10 +91,18 @@ namespace TinyOpenEngine
 		bool isBackground;
 		bool isMargin;
 		bool isPadding;
+		bool isBorder;
+		bool isShadowSize;
+		bool isShadowOffset;
+		bool isShadowColor;
+		bool isDropShadow;
+		bool isBorderColor;
 		bool isHorizontalAlignment;
 		bool isVerticalAlignment;
 	public:
-		CtoeSimpleMenuStyle():isFont(false),isFontSize(false),isFontColor(false),isBackground(false),isMargin(false),isPadding(false),isHorizontalAlignment(false),isVerticalAlignment(false){}
+		CtoeSimpleMenuStyle():isFont(false),isFontSize(false),isFontColor(false),isBackground(false),isMargin(false),isPadding(false),
+			isShadowSize(false),isShadowOffset(false),isShadowColor(false),isDropShadow(false),
+			isBorder(false),isBorderColor(false),isHorizontalAlignment(false),isVerticalAlignment(false){}
 		virtual void Serialise();
 		void Apply(CtoeSimpleMenuStyleSettings* other)
 		{
@@ -85,6 +119,18 @@ namespace TinyOpenEngine
 				other->Background = settings.Background;
 			if (isMargin)
 				other->Margin = settings.Margin;
+			if (isBorderColor)
+				other->BorderColor = settings.BorderColor;
+			if (isBorder)
+				other->Border = settings.Border;
+			if (isDropShadow)
+				other->DropShadow = settings.DropShadow;
+			if (isShadowColor)
+				other->ShadowColor = settings.ShadowColor;
+			if (isShadowOffset)
+				other->ShadowOffset = settings.ShadowOffset;
+			if (isShadowSize)
+				other->ShadowSize = settings.ShadowSize;
 			if (isPadding)
 				other->Padding = settings.Padding;
 			if (isHorizontalAlignment)

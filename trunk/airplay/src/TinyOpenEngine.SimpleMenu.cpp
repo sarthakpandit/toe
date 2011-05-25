@@ -15,6 +15,7 @@
 #include "toeSimpleMenuStyle.h"
 #include "toeSimpleMenuSlider.h"
 #include "toeSimpleMenuButton.h"
+#include "toeSimpleMenuCanvas.h"
 #include "toeSimpleMenuRow.h"
 #include "toeSimpleMenuGrid.h"
 
@@ -41,6 +42,7 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	IW_CLASS_REGISTER(CtoeSimpleMenu);
 	IW_CLASS_REGISTER(CtoeSimpleMenuBackground);
 	IW_CLASS_REGISTER(CtoeSimpleMenuClickable);
+	IW_CLASS_REGISTER(CtoeSimpleMenuCanvas);
 	IW_CLASS_REGISTER(CtoeSimpleMenuRoot);
 	IW_CLASS_REGISTER(CtoeSimpleMenuImage);
 	IW_CLASS_REGISTER(CtoeSimpleMenuImageCarousel);
@@ -57,6 +59,8 @@ void TinyOpenEngine::toeSimpleMenuInit()
 
 	
 	toeRegisterClass(CtoeSimpleMenuItem::GetClassDescription());
+	toeRegisterClass(CtoeSimpleMenuButton::GetClassDescription());
+	toeRegisterClass(CtoeSimpleMenuTextBlock::GetClassDescription());
 	//toeRegisterClass(new TtoeScriptableClassDeclaration<CtoeSimpleMenuItem>("CtoeSimpleMenuItem",
 	//	new TtoeScriptableMethodDeclarationR<CtoeSimpleMenuItem,int>("Test", &CtoeSimpleMenuItem::Test),
 	//	0));

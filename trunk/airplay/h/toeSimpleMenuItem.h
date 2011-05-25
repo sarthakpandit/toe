@@ -39,6 +39,9 @@ namespace TinyOpenEngine
 		IW_MANAGED_DECLARE(CtoeSimpleMenuItem);
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
+		//Get scriptable class declaration
+		virtual CtoeScriptableClassDeclaration* GetInstanceClassDescription() {return GetClassDescription(); };
+
 		//Constructor
 		CtoeSimpleMenuItem();
 		//Desctructor
@@ -51,10 +54,13 @@ namespace TinyOpenEngine
 		virtual void Prepare(toeSimpleMenuItemContext* renderContext,int16 width);
 		//Render image on the screen surface
 		virtual void Render(toeSimpleMenuItemContext* renderContext);
+
 		bool IsVisible(toeSimpleMenuItemContext* renderContext);
+
 		const CIwSVec2& GetOrigin() const {return origin;}
 		//Gets size of the item. It's only valid after Prepare method been executed
 		const CIwSVec2& GetSize() const {return size;}
+
 		virtual void SetOrigin(const CIwSVec2& v) { if (origin!=v) { origin=v;RearrangeChildItems(); }}
 
 		//Method walks through child items and collect active ones into plain list
@@ -67,12 +73,25 @@ namespace TinyOpenEngine
 		inline int16 GetMarginRight()const {return combinedStyle.GetMarginRight(1);}
 		inline int16 GetMarginBottom()const {return combinedStyle.GetMarginBottom(1);}
 
+		inline int16 GetBorderLeft()const {return combinedStyle.GetBorderLeft(1);}
+		inline int16 GetBorderTop()const {return combinedStyle.GetBorderTop(1);}
+		inline int16 GetBorderRight()const {return combinedStyle.GetBorderRight(1);}
+		inline int16 GetBorderBottom()const {return combinedStyle.GetBorderBottom(1);}
+
 		inline int16 GetPaddingLeft()const {return combinedStyle.GetPaddingLeft(1);}
 		inline int16 GetPaddingTop()const {return combinedStyle.GetPaddingTop(1);}
 		inline int16 GetPaddingRight()const {return combinedStyle.GetPaddingRight(1);}
 		inline int16 GetPaddingBottom()const {return combinedStyle.GetPaddingBottom(1);}
+
+		inline int16 GetContentOffsetLeft()const {return GetMarginLeft()+GetPaddingLeft()+GetBorderLeft();}
+		inline int16 GetContentOffsetRight()const {return GetMarginRight()+GetPaddingRight()+GetBorderRight();}
+		inline int16 GetContentOffsetTop()const {return GetMarginTop()+GetPaddingTop()+GetBorderTop();}
+		inline int16 GetContentOffsetBottom()const {return GetMarginBottom()+GetPaddingBottom()+GetBorderBottom();}
+
 		inline CtoeSimpleMenuRoot*GetRoot()const{return root;}
 		inline CtoeSimpleMenuItem*GetParent()const{return parent;}
+		inline CtoeSimpleMenuItem*GetChildAt(int i)const{return static_cast<CtoeSimpleMenuItem*>(childItems[i]);}
+		inline int GetChildItemsCount()const{return (int)childItems.GetSize();}
 
 		void CombineStyle(toeSimpleMenuItemContext* renderContext);
 		virtual void InheritStyle(CtoeSimpleMenuStyleSettings* parentSettings);
@@ -92,10 +111,11 @@ namespace TinyOpenEngine
 		virtual CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
 		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
 
-		void Test();
-		int TestInt();
-		void TestA(int a);
-		int TestIntA(int a);
+	protected:
+		void RenderBackgroud();
+		void RenderShadow();
+		void RenderBorder();
+	public:
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.
 		virtual	void	ParseOpen(CIwTextParserITX* pParser);

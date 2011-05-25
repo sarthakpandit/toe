@@ -4,22 +4,70 @@ namespace TinyOpenEngine
 {
 	namespace ScriptTraits
 	{
-		template <class T> inline T FetchArgument()
-		{
-		};
-		template <class T> inline void PushResult(ItoeScriptingSubsystem* system, T t)
-		{
-			system->Return(t);
-		};
-		template <> inline void PushResult<const char*>(ItoeScriptingSubsystem* system, const char* t)
-		{
-			system->Return(t);
-		};
+		template <class T> class StripPointer { public: typedef T STRIPPED; };
+		template <class T> class StripPointer<T*> { public: typedef T STRIPPED; };
+
+		template <typename T> inline T FetchArgument(ItoeScriptingSubsystem* system) { return system->PopArgClass(StripPointer<T>::STRIPPED::GetClassDescription()); };
+		template <> inline int FetchArgument<int>(ItoeScriptingSubsystem* system) { return system->PopArgInt(); };
+		template <> inline float FetchArgument<float>(ItoeScriptingSubsystem* system) { return system->PopArgFloat(); };
+		template <> inline double FetchArgument<double>(ItoeScriptingSubsystem* system) { return system->PopArgFloat(); };
+		template <> inline const char* FetchArgument<const char *>(ItoeScriptingSubsystem* system) { return system->PopArgStr(); };
+
+		template <class T> inline void PushResult(ItoeScriptingSubsystem* system, T t) { system->Return(t); };
 		template <class PTR> inline void PushResult(ItoeScriptingSubsystem* system, PTR* t)
 		{
-			system->Return(t, PTR::GetClassDescription());
+			if (t)
+				system->Return(t, t->GetInstanceClassDescription());
+			else
+				system->ReturnNil();
 		};
-
+		template <> inline void PushResult<const char>(ItoeScriptingSubsystem* system, const char* t)
+		{
+			system->Return(t);
+		};
+		template <typename R> class NoArgFunction: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef R(* METHOD)();
+		protected:
+			METHOD m;
+		public:
+			virtual bool IsStatic() const {return true;}
+			NoArgFunction(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				return m();
+			}
+		};
+		template <typename R, typename A> class OneArgFunction: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef R(* METHOD)(A);
+		protected:
+			METHOD m;
+		public:
+			virtual bool IsStatic() const {return true;}
+			OneArgFunction(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				return m(FetchArgument<A>(system));
+			}
+		};
+		template <typename R, typename A1, typename A2> class TwoArgFunction: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef R(* METHOD)(A1,A2);
+		protected:
+			METHOD m;
+		public:
+			virtual bool IsStatic() const {return true;}
+			TwoArgFunction(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				A1 a1 = FetchArgument<A1>(system);
+				return m(a1, FetchArgument<A2>(system));
+			}
+		};
 		template <class T, class R, typename mmm> class NoArgsMethod: public CtoeScriptableMethodDeclaration
 		{
 		public:
@@ -35,7 +83,20 @@ namespace TinyOpenEngine
 				return (i->*m)();
 			}
 		};
-
+		template <class T, class R, typename A, typename mmm> class OneArgsMethod: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef mmm METHOD;
+		protected:
+			METHOD m;
+		public:
+			OneArgsMethod(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				T* i = ((T*)instance);
+				return (i->*m)(FetchArgument<A>(system));
+			}
+		};
 		template <class R, class Caller> class MethodBase: public Caller
 		{
 		public:
@@ -55,21 +116,17 @@ namespace TinyOpenEngine
 				system->Return();
 			}
 		};
-		inline CtoeScriptableMethodDeclaration* Method(const char* name, void (*fn) ())
-		{
-			return 0;
-		};
 		template <typename R> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) ())
 		{
-			return 0;
+			return new MethodBase<R,NoArgFunction<R> >(name,fn);
 		};
 		template <typename R,typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) (A))
 		{
-			return 0;
+			return new MethodBase<R,OneArgFunction<R,A> >(name,fn);
 		};
-		template <typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, void (*fn) (A))
+		template <typename R,typename A1,typename A2> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) (A1,A2))
 		{
-			return 0;
+			return new MethodBase<R,TwoArgFunction<R,A1,A2> >(name,fn);
 		};
 		template <class T, typename R> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn) ())
 		{
@@ -79,13 +136,13 @@ namespace TinyOpenEngine
 		{
 			return new MethodBase<R,NoArgsMethod<T,R,R (T::*)  () const> >(name,fn);
 		};
-		template <class T, typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, void (T::*fn) (A))
+		template <class T, typename R,typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn) (A))
 		{
-			return 0;
+			return new MethodBase<R,OneArgsMethod<T,R,A,R (T::*) (A)> >(name,fn);
 		};
-		template <class T, typename R, typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn) (A))
+		template <class T, typename R,typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn)  (A) const)
 		{
-			return 0;
+			return new MethodBase<R,OneArgsMethod<T,R,A,R (T::*)  (A) const> >(name,fn);
 		};
 	}
 	template <class T> class TtoeScriptableMethodDeclaration: public CtoeScriptableMethodDeclaration

@@ -61,33 +61,35 @@ namespace TinyOpenEngine
 
 
 	// member function dispatcher
-  static int toeLuaMethodCall(lua_State *L) {
+  int CtoeLuaState::toeLuaMethodCall(lua_State *L) {
 
-	  toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(lua_touserdata(L, 1));
+	  
+	  //toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(lua_touserdata(L, 1));
 	  CtoeScriptableClassDeclaration*c = static_cast<CtoeScriptableClassDeclaration*>(lua_touserdata(L, lua_upvalueindex(1)));
 	  CtoeScriptableMethodDeclaration*m = static_cast<CtoeScriptableMethodDeclaration*>(lua_touserdata(L, lua_upvalueindex(2)));
 	  CtoeLuaState*state = static_cast<CtoeLuaState*>(lua_touserdata(L, lua_upvalueindex(3)));
 
 	  //toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(luaL_checkudata(L, 0, c->GetClassName()));
-	  int r = state->CallMethod(c,m,state);
+	  state->currentArg = 0;
+	  int r = state->CallMethod(c,m,state->PopArgClass(c));
 	  return r;
   }
 	// member function dispatcher
-  static int toeLuaStaticMethodCall(lua_State *L) {
+  int CtoeLuaState::toeLuaStaticMethodCall(lua_State *L) {
 
 	  CtoeScriptableClassDeclaration*c = static_cast<CtoeScriptableClassDeclaration*>(lua_touserdata(L, lua_upvalueindex(1)));
 	  CtoeScriptableMethodDeclaration*m = static_cast<CtoeScriptableMethodDeclaration*>(lua_touserdata(L, lua_upvalueindex(2)));
 	  CtoeLuaState*state = static_cast<CtoeLuaState*>(lua_touserdata(L, lua_upvalueindex(3)));
 
 	  //toeLuaUserDataContainer *ud = static_cast<toeLuaUserDataContainer*>(luaL_checkudata(L, 0, c->GetClassName()));
-	  int r = state->CallMethod(c,m,state);
+	  state->currentArg = 0;
+	  int r = state->CallMethod(c,m,0);
 	  return r;
   }
   int CtoeLuaState::CallMethod(CtoeScriptableClassDeclaration* c,CtoeScriptableMethodDeclaration* m,void*o)
   {
 	  int prevNumRes = numRes;
 	  int prevcurrentArg = currentArg;
-	  currentArg = 0;
 	  numRes = 0;
 	  m->Call(this,c, o);
 	  int r = numRes;
@@ -143,6 +145,11 @@ namespace TinyOpenEngine
 void CtoeLuaState::Return()
 {
 }
+void CtoeLuaState::ReturnNil()
+{
+	++numRes;
+	lua_pushnil(L);
+}
 void CtoeLuaState::Return(int i)
 {
 	++numRes;
@@ -190,7 +197,10 @@ const char* CtoeLuaState::PopArgStr()
 void* CtoeLuaState::PopArgClass(CtoeScriptableClassDeclaration*c)
 {
 	++currentArg;
-	return luaL_checkudata(L,currentArg,c->GetClassName());
+	toeLuaUserDataContainer* ud = (toeLuaUserDataContainer*)luaL_checkudata(L,currentArg,c->GetClassName());
+	if (!ud)
+		return ud;
+	return ud->userData;
 }
 
 //Constructor

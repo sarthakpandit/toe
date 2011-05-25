@@ -2,6 +2,7 @@
 #include <IwResManager.h>
 #include <IwGx.h>
 #include "toeSimpleMenuTextBlock.h"
+#include "toeSimpleMenuRoot.h"
 
 using namespace TinyOpenEngine;
 
@@ -67,6 +68,35 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 		}
 	}
 }
+//Get scriptable class declaration
+CtoeScriptableClassDeclaration* CtoeSimpleMenuTextBlock::GetClassDescription()
+{
+	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuTextBlock> d ("CtoeSimpleMenuTextBlock",
+			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuTextBlock::GetRoot),
+			ScriptTraits::Method("GetText", &CtoeSimpleMenuTextBlock::GetText),
+			ScriptTraits::Method("SetText", &CtoeSimpleMenuTextBlock::SetText),
+			0);
+	return &d;
+}
+const char* CtoeSimpleMenuTextBlock::GetText() const
+{
+	return utf8string;
+}
+void CtoeSimpleMenuTextBlock::SetText(const char* t)
+{
+	cachedWithCombinedStyle = CtoeSimpleMenuStyleSettings();
+	if (utf8string)
+	{
+		delete utf8string;
+		utf8string = 0;
+	}
+	if (t)
+	{
+		utf8string = new char[strlen(t)+1];
+		strcpy(utf8string,t);
+	}
+}
+
 void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {
 	CombineStyle(renderContext);
@@ -98,7 +128,9 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 {
 	if (!IsVisible(renderContext)) return;
-	combinedStyle.Background.Render(GetOrigin()+CIwSVec2(GetMarginLeft(),GetMarginTop()), GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight(),GetMarginTop()+GetMarginBottom()));
+	RenderShadow();
+	RenderBackgroud();
+	RenderBorder();
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
 	layoutData.RenderAt(p,combinedStyle.FontColor);
 	

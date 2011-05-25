@@ -38,6 +38,9 @@
 #ifndef __FTCONFIG_H__
 #define __FTCONFIG_H__
 
+//Ariplay SDK
+#define FT2_BUILD_LIBRARY 1
+
 #include <ft2build.h>
 #include FT_CONFIG_OPTIONS_H
 #include FT_CONFIG_STANDARD_LIBRARY_H

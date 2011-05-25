@@ -12,6 +12,10 @@ namespace TinyOpenEngine
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuButton);
+		//Get scriptable class declaration
+		static CtoeScriptableClassDeclaration* GetClassDescription();
+		//Get scriptable class declaration
+		virtual CtoeScriptableClassDeclaration* GetInstanceClassDescription() {return GetClassDescription(); };
 		//Constructor
 		CtoeSimpleMenuButton();
 		//Desctructor

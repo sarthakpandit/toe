@@ -2,6 +2,7 @@
 #include <IwTextParserITX.h>
 //#include <s3eTouchpad.h>
 #include "TinyOpenEngine.h"
+#include "toeConfig.h"
 #include "toeWorld.h"
 #include "toeScriptingSubsystem.h"
 #include "toeComponent.h"
@@ -124,7 +125,9 @@ void TinyOpenEngine::toeInit()
 	IW_CLASS_REGISTER(CtoeWorld);
 	IW_CLASS_REGISTER(CtoeDefaultHitTest);
 
+
 	toe_scriptClassDeclarations = new CIwArray<CtoeScriptableClassDeclaration*>;
+	toeRegisterClass(CtoeConfig::GetClassDescription());
 
 	if (!inputFilter)
 		inputFilter = new CtoeInputFilter();

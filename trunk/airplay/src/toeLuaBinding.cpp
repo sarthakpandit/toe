@@ -37,7 +37,8 @@ namespace TinyOpenEngine
 	int toeLuaAssertMsg(lua_State* L)
 	{
 		const char* s1 = luaL_checkstring(L,1);
-		IwAssertMsg(TOE,false,(s1));
+		IwDebugAssertShow(s1,"",0,true);
+		//IwAssertMsg(TOE,false,(s1));
 		return 0;
 	}
 	int toeLuaDeviceCheckPauseRequest(lua_State* L)
