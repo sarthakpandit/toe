@@ -153,7 +153,8 @@ namespace TinyOpenEngine
 		CIwArray<CIwSVec2> renderBufferPos;
 		CIwArray<CIwSVec2> renderBufferUV;
 		void RenderAt(const CIwSVec2 & pos);
-		void RenderAt(const CIwSVec2 & pos, const CIwColour& col);
+		void RenderAt(const CIwSVec2 & pos, const CIwMat2D & t);
+		void RenderAt(const CIwSVec2 & pos, const CIwMat2D & t, const CIwColour& col);
 	};
 
 	struct CtoeFreeTypeAtlas

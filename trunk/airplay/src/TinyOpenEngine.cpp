@@ -125,9 +125,10 @@ void TinyOpenEngine::toeInit()
 	IW_CLASS_REGISTER(CtoeWorld);
 	IW_CLASS_REGISTER(CtoeDefaultHitTest);
 
-
 	toe_scriptClassDeclarations = new CIwArray<CtoeScriptableClassDeclaration*>;
 	toeRegisterClass(CtoeConfig::GetClassDescription());
+
+	CtoeConfig::Load();
 
 	if (!inputFilter)
 		inputFilter = new CtoeInputFilter();
@@ -155,6 +156,9 @@ void TinyOpenEngine::toeTerminate()
 	if (!isTinyOpenEngineInitialized)
 		return;
 	isTinyOpenEngineInitialized = false;
+
+	CtoeConfig::Save();
+	CtoeConfig::Close();
 
 	if (g_toeTraceSocket)
 	{

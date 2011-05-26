@@ -109,13 +109,14 @@ bool CtoeSimpleMenuItem::IsVisible(toeSimpleMenuItemContext* renderContext)
 		return false;
 	return true;
 }
-void CtoeSimpleMenuItem::RenderBackgroud()
+void CtoeSimpleMenuItem::RenderBackgroud(toeSimpleMenuItemContext* renderContext)
 {
 	combinedStyle.Background.Render(
 		GetOrigin()+CIwSVec2(GetMarginLeft()+GetBorderLeft(),GetMarginTop()+GetBorderTop()), 
-		GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight()+GetBorderLeft()+GetBorderRight(),GetMarginTop()+GetMarginBottom()+GetBorderTop()+GetBorderBottom()));
+		GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight()+GetBorderLeft()+GetBorderRight(),GetMarginTop()+GetMarginBottom()+GetBorderTop()+GetBorderBottom()),
+		renderContext->transformation);
 }
-void CtoeSimpleMenuItem::RenderShadow()
+void CtoeSimpleMenuItem::RenderShadow(toeSimpleMenuItemContext* renderContext)
 {
 	if (!combinedStyle.DropShadow)
 		return;
@@ -197,12 +198,16 @@ void CtoeSimpleMenuItem::RenderShadow()
 
 	m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
 	IwGxSetMaterial(m);
+	if (renderContext->transformation != CIwMat2D::g_Identity)
+		for (CIwSVec2* pi=v; pi!=v+vertices; ++pi)
+			*pi = renderContext->transformation.TransformVec(*pi);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetColStream(col);
+	IwGxSetUVStream(0);
 	IwGxDrawPrims(IW_GX_TRI_LIST, indices, i);
 
 }
-void CtoeSimpleMenuItem::RenderBorder()
+void CtoeSimpleMenuItem::RenderBorder(toeSimpleMenuItemContext* renderContext)
 {
 	if (combinedStyle.BorderColor.a == 0)
 		return;
@@ -257,6 +262,9 @@ void CtoeSimpleMenuItem::RenderBorder()
 	if (combinedStyle.BorderColor.a != 255)
 		m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
 	IwGxSetMaterial(m);
+	if (renderContext->transformation != CIwMat2D::g_Identity)
+		for (CIwSVec2* pi=v; pi!=v+vertices; ++pi)
+			*pi = renderContext->transformation.TransformVec(*pi);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetColStream(col);
 	IwGxDrawPrims(IW_GX_TRI_LIST, indices, i);
@@ -269,9 +277,9 @@ void CtoeSimpleMenuItem::Render(toeSimpleMenuItemContext* renderContext)
 	toeSimpleMenuItemContext context = *renderContext;
 	context.parentStyle = &combinedStyle;
 
-	RenderShadow();
-	RenderBackgroud();
-	RenderBorder();
+	RenderShadow(renderContext);
+	RenderBackgroud(renderContext);
+	RenderBorder(renderContext);
 
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{

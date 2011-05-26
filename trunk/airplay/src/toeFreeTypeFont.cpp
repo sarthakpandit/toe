@@ -521,9 +521,14 @@ bool CtoeFreeTypeFont::IsWhiteSpace(int32 code)
 void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos)
 {
 	CIwColour c;c.Set(0xFFFFFFFF);
-	RenderAt(pos,c);
+	RenderAt(pos,CIwMat2D::g_Identity,c);
 }
-void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour& col)
+void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D & t)
+{
+	CIwColour c;c.Set(0xFFFFFFFF);
+	RenderAt(pos,t,c);
+}
+void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D & transformation, const CIwColour& col)
 {
 	if (glyphs.size() == 0)
 		return;
@@ -544,6 +549,9 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour
 	{
 		if (start+2000 == cur)
 		{
+			if (transformation != CIwMat2D::g_Identity)
+				for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
+					*pi = transformation.TransformVec(*pi);
 			IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 			IwGxSetUVStream(uv+start);
 			IwGxSetColStream(0);
@@ -554,6 +562,9 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour
 		{
 			if (start != cur)
 			{
+				if (transformation != CIwMat2D::g_Identity)
+					for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
+						*pi = transformation.TransformVec(*pi);
 				IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 				IwGxSetUVStream(uv+start);
 				IwGxSetColStream(0);
@@ -586,6 +597,9 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwColour
 	}
 	if (start != cur)
 	{
+		if (transformation != CIwMat2D::g_Identity)
+			for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
+				*pi = transformation.TransformVec(*pi);
 		IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 		IwGxSetUVStream(uv+start);
 		IwGxSetColStream(0);
