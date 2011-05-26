@@ -7,6 +7,7 @@
 #include "toeScriptingSubsystem.h"
 #include "toeComponent.h"
 #include "toeSubsystem.h"
+#include "toeFeatures.h"
 #include "toeDefaultHitTest.h"
 
 using namespace TinyOpenEngine;
@@ -19,6 +20,13 @@ namespace TinyOpenEngine
 	uint32 nextWorldHash = 0;
 	s3eSocket* g_toeTraceSocket;
 	CIwArray<CtoeScriptableClassDeclaration*>* toe_scriptClassDeclarations=0;
+	TtoeIntrusiveList<CtoeFeature> * toe_featuresList = 0;
+	TtoeIntrusiveList<CtoeFeature> * toeGetActiveFeatures()
+	{
+		if (!toe_featuresList)
+			toe_featuresList = new TtoeIntrusiveList<CtoeFeature>();
+		return toe_featuresList;
+	}
 
 	void toeLoadAndRunNextWorld();
 	void toeExitApplication()
@@ -127,6 +135,10 @@ void TinyOpenEngine::toeInit()
 
 	toe_scriptClassDeclarations = new CIwArray<CtoeScriptableClassDeclaration*>;
 	toeRegisterClass(CtoeConfig::GetClassDescription());
+	toeRegisterClass(CtoeAccelerometer::GetClassDescription());
+	toeRegisterClass(CtoeLocation::GetClassDescription());
+	toeRegisterClass(CtoeCompass::GetClassDescription());
+	toeRegisterClass(CtoeAudio::GetClassDescription());
 
 	CtoeConfig::Load();
 
@@ -165,6 +177,14 @@ void TinyOpenEngine::toeTerminate()
 		s3eSocketClose(g_toeTraceSocket);
 		//delete g_toeTraceSocket;
 		g_toeTraceSocket = 0;
+	}
+
+	if (toe_featuresList)
+	{
+		while (toe_featuresList->GetFirstChild())
+			delete toe_featuresList->GetFirstChild();
+		delete toe_featuresList;
+		toe_featuresList = 0;
 	}
 
 	if (inputFilter)

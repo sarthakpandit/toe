@@ -22,6 +22,7 @@ namespace TinyOpenEngine
 		virtual void Serialise ();
 
 		void AssignBuffer(char* buf);
+		const char* GetText() const {return buffer;}
 	};
 
 #ifdef IW_BUILD_RESOURCES

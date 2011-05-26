@@ -47,11 +47,13 @@ namespace TinyOpenEngine
 		virtual void Return(int i)=0;
 		virtual void Return(float i)=0;
 		virtual void Return(const char*)=0;
+		virtual void Return(bool)=0;
 		virtual void Return(void*,CtoeScriptableClassDeclaration*)=0;
 
 		virtual int PopArgInt()=0;
 		virtual float PopArgFloat()=0;
 		virtual const char* PopArgStr()=0;
+		virtual bool PopArgBool()=0;
 		virtual void* PopArgClass(CtoeScriptableClassDeclaration*)=0;
 	};
 }

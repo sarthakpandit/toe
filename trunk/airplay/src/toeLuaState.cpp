@@ -2,6 +2,7 @@
 #include <IwResManager.h>
 #include <TinyOpenEngine.h>
 #include "toeLuaState.h"
+#include "toeLuaScript.h"
 #include "lauxlib.h"
 
 using namespace TinyOpenEngine;
@@ -155,6 +156,11 @@ void CtoeLuaState::Return(int i)
 	++numRes;
 	lua_pushinteger(L,i);
 }
+void CtoeLuaState::Return(bool i)
+{
+	++numRes;
+	lua_pushboolean(L,i);
+}
 void CtoeLuaState::Return(float i)
 {
 	++numRes;
@@ -178,7 +184,11 @@ void CtoeLuaState::Return(void*instance,CtoeScriptableClassDeclaration*l)
 	luaL_getmetatable(L, l->GetClassName());
 	lua_setmetatable(L, -2);
 }
-
+bool CtoeLuaState::PopArgBool()
+{
+	++currentArg;
+	return luaL_checkint(L,currentArg) != 0;
+}
 int CtoeLuaState::PopArgInt()
 {
 	++currentArg;
@@ -245,12 +255,27 @@ void CtoeLuaState::Initialize(CtoeWorld*w)
 	toeRegisterLua(L);
 
 	toeRegisterScriptableClasses(this);
+
+	for (uint32 i=0; i<openScripts.size(); ++i)
+	{
+		CtoeLuaScript* s = (CtoeLuaScript*)IwGetResManager()->GetResHashed(openScripts[i], "CtoeLuaScript");
+		if (s)
+		{
+			if (!toeLuaAssert(L, luaL_loadstring(L, s->GetText())))
+			{
+				toeLuaAssert(L, lua_pcall(L, 0, LUA_MULTRET, 0));
+			}
+		}
+	}
 }
 
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeLuaState::Serialise ()
 {
 	CtoeSubsystem::Serialise();
+	openScripts.SerialiseHeader();
+	for (uint32 i=0; i<openScripts.size(); ++i)
+		IwSerialiseUInt32(openScripts[i]);
 }
 void CtoeLuaState::RegisterClass(CtoeScriptableClassDeclaration* c)
 {
@@ -348,6 +373,7 @@ bool CtoeLuaState::ParseAttribute(CIwTextParserITX* pParser, const char* pAttrNa
 	{
 		uint32 openScript;
 		pParser->ReadStringHash(&openScript);
+		openScripts.push_back(openScript);
 		return true;
 	}
 	return CtoeSubsystem::ParseAttribute(pParser,pAttrName);

@@ -56,8 +56,10 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuItem* GetHeader() const { return (childItems.GetSize() > 1)?static_cast<CtoeSimpleMenuItem*>(childItems[1]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* GetFooter() const { return (childItems.GetSize() > 2)?static_cast<CtoeSimpleMenuItem*>(childItems[2]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & coord);
-		CtoeSimpleMenuItem* FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip);
-		CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
+		
+		bool VisitForward(ItoeSimpleMenuVisitor* visitor);
+		bool VisitBackward(ItoeSimpleMenuVisitor* visitor);		
+
 		virtual bool TouchEvent(TouchContext* touchContext);
 		virtual bool TouchReleaseEvent(TouchContext* touchContext);
 		virtual bool TouchMotionEvent(TouchContext* touchContext);

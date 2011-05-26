@@ -10,7 +10,25 @@ using namespace TinyOpenEngine;
 
 namespace TinyOpenEngine
 {
-	
+	class CtoeSimpleMenuNextActive: public ItoeSimpleMenuVisitor
+	{
+	public:
+		CtoeSimpleMenuItem* m_skip;
+		CtoeSimpleMenuItem* m_found;
+
+		CtoeSimpleMenuNextActive(CtoeSimpleMenuItem* skip):m_skip(skip),m_found(0){}
+		virtual bool Visited(CtoeSimpleMenuItem*i) {
+			if (!m_skip && i->IsActive())
+			{
+				m_found = i;
+				return false;
+			}
+			if (m_skip == i)
+				m_skip = 0;
+			return true;
+		}
+
+	};
 }
 
 //Instantiate the default factory function for a named class 
@@ -187,29 +205,27 @@ void CtoeSimpleMenuRoot::AlignBlocks()
 	}
 
 }
-CtoeSimpleMenuItem* CtoeSimpleMenuRoot::FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip)
+bool CtoeSimpleMenuRoot::VisitForward(ItoeSimpleMenuVisitor* visitor)
 {
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		CtoeSimpleMenuItem* foundItem = item->FindActiveItemForward(skipItem,toSkip);
-		if (foundItem)
-			return foundItem;
+		if (!item->VisitForward(visitor))
+			return false;
 	}
-	return 0;
+	return true;
 }
-CtoeSimpleMenuItem* CtoeSimpleMenuRoot::FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip)
+bool CtoeSimpleMenuRoot::VisitBackward(ItoeSimpleMenuVisitor* visitor)
 {
 	CIwManaged** i = childItems.GetEnd();
 	for (; i!=childItems.GetBegin(); )
 	{
 		--i;
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		CtoeSimpleMenuItem* foundItem = item->FindActiveItemBackward(skipItem,toSkip);
-		if (foundItem)
-			return foundItem;
+		if (!item->VisitForward(visitor))
+			return false;
 	}
-	return 0;
+	return true;
 }
 
 CtoeSimpleMenuItem* CtoeSimpleMenuRoot::FindActiveItemAt(const CIwVec2 & coord)
@@ -231,25 +247,23 @@ bool CtoeSimpleMenuRoot::KeyEvent(KeyContext* keyContext)
 		{
 		case s3eKeyUp:
 			{
-				CtoeSimpleMenuItem* skip = activeItem;
-				int toSkip = 0;
-				skip = FindActiveItemBackward(skip,toSkip);
-				if (skip)
+				CtoeSimpleMenuNextActive v(activeItem);
+				VisitForward(&v);
+				if (v.m_found)
 				{
-					SetFocusTo(skip);
-					ScrollToItem(skip);
+					SetFocusTo(v.m_found);
+					ScrollToItem(v.m_found);
 				}
 			}
 			break;
 		case s3eKeyDown:
 			{
-				CtoeSimpleMenuItem* skip = activeItem;
-				int toSkip = 0;
-				skip = FindActiveItemForward(skip,toSkip);
-				if (skip)
+				CtoeSimpleMenuNextActive v(activeItem);
+				VisitBackward(&v);
+				if (v.m_found)
 				{
-					SetFocusTo(skip);
-					ScrollToItem(skip);
+					SetFocusTo(v.m_found);
+					ScrollToItem(v.m_found);
 				}
 			}
 			break;
