@@ -128,11 +128,11 @@ void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,in
 void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 {
 	if (!IsVisible(renderContext)) return;
-	RenderShadow();
-	RenderBackgroud();
-	RenderBorder();
+	RenderShadow(renderContext);
+	RenderBackgroud(renderContext);
+	RenderBorder(renderContext);
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
-	layoutData.RenderAt(p,combinedStyle.FontColor);
+	layoutData.RenderAt(p,renderContext->transformation,combinedStyle.FontColor);
 	
 }
 void CtoeSimpleMenuTextBlock::RearrangeChildItems()

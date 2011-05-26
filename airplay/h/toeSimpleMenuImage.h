@@ -14,9 +14,7 @@ namespace TinyOpenEngine
 		CIwMaterial* material;
 		CIwSVec2 rectPos;
 		CIwSVec2 rectSize;
-		CIwSVec2 rectUV;
-		CIwSVec2 rectUVSize;
-		CIwColour rectColour[4];
+		CIwColour rectColour;
 
 		uint32 styleSheetHash;
 		CtoeSimpleMenuStyleSheet* styleSheet;

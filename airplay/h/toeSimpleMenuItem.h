@@ -17,7 +17,8 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuStyleSheet* styleSheet;
 		CIwSVec2 viewportPos;
 		CIwSVec2 viewportSize;
-		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0){};
+		CIwMat2D transformation;
+		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0),transformation(CIwMat2D::g_Identity){};
 	};
 	class CtoeSimpleMenuRoot;
 	class CtoeSimpleMenuItem : public CIwManaged
@@ -112,9 +113,9 @@ namespace TinyOpenEngine
 		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
 
 	protected:
-		void RenderBackgroud();
-		void RenderShadow();
-		void RenderBorder();
+		void RenderBackgroud(toeSimpleMenuItemContext* renderContext);
+		void RenderShadow(toeSimpleMenuItemContext* renderContext);
+		void RenderBorder(toeSimpleMenuItemContext* renderContext);
 	public:
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.

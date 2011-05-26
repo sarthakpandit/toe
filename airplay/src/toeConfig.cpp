@@ -42,3 +42,12 @@ const char* CtoeConfig::GetString(const char* name)
 {
 	return "";
 }
+void CtoeConfig::Load()
+{
+}
+void CtoeConfig::Save()
+{
+}
+void CtoeConfig::Close()
+{
+}

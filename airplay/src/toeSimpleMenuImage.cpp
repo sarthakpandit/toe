@@ -38,13 +38,7 @@ void CtoeSimpleMenuImage::InitImage()
 	texture = 0;
 	material = 0;
 	rectPos = CIwSVec2::g_Zero;
-	rectUV = CIwSVec2::g_Zero;
-	rectUVSize.x = IW_GEOM_ONE;
-	rectUVSize.y = IW_GEOM_ONE;
-	rectColour[0].Set(0xFFFFFFFF);
-	rectColour[1].Set(0xFFFFFFFF);
-	rectColour[2].Set(0xFFFFFFFF);
-	rectColour[3].Set(0xFFFFFFFF);
+	rectColour.Set(0xFFFFFFFF);
 
 	styleSheetHash = 0;
 	styleSheet = 0;
@@ -87,12 +81,6 @@ void CtoeSimpleMenuImage::Prepare(toeSimpleMenuItemContext* renderContext,int16 
 }
 void CtoeSimpleMenuImage::RearrangeChildItems()
 {
-	rectPos = GetOrigin();
-	rectPos.y += GetMarginTop()+GetPaddingTop();
-	int16 width = GetSize().x;
-	rectPos.x += GetMarginLeft()+GetPaddingLeft();
-	int16 contentWidth = width-(GetMarginLeft()+GetPaddingLeft()+GetMarginRight()+GetPaddingRight());
-	rectPos.x += (contentWidth-rectSize.x)*combinedStyle.HorizontalAlignment/IW_GEOM_ONE;
 }
 //Render image on the screen surface
 void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
@@ -100,9 +88,35 @@ void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
 	if (textureHash == 0)
 		return;
 
-	IwGxSetMaterial(material);
+	CIwSVec2 rectPos = GetOrigin();
+	rectPos.y += GetMarginTop()+GetPaddingTop();
+	int16 width = GetSize().x;
+	rectPos.x += GetMarginLeft()+GetPaddingLeft();
+	int16 contentWidth = width-(GetMarginLeft()+GetPaddingLeft()+GetMarginRight()+GetPaddingRight());
+	rectPos.x += (contentWidth-rectSize.x)*combinedStyle.HorizontalAlignment/IW_GEOM_ONE;
 
-	IwGxDrawRectScreenSpace (&rectPos,&rectSize,&rectUV,&rectUVSize,rectColour);
+	IwGxSetMaterial(material);
+	CIwSVec2* v = IW_GX_ALLOC(CIwSVec2,4);
+	v[0] = CIwSVec2(rectPos.x, rectPos.y);
+	v[1] = CIwSVec2(rectPos.x, rectPos.y+rectSize.y);
+	v[2] = CIwSVec2(rectPos.x+rectSize.x, rectPos.y+rectSize.y);
+	v[3] = CIwSVec2(rectPos.x+rectSize.x, rectPos.y);
+	CIwSVec2* uv = IW_GX_ALLOC(CIwSVec2,4);
+	uv[0] = CIwSVec2(0,0);
+	uv[1] = CIwSVec2(0,IW_GEOM_ONE);
+	uv[2] = CIwSVec2(IW_GEOM_ONE,IW_GEOM_ONE);
+	uv[3] = CIwSVec2(IW_GEOM_ONE,0);
+	CIwColour* col =IW_GX_ALLOC(CIwColour,4);
+	col[0] = col[1] = col[2] = col[3] = rectColour;
+
+	if (renderContext->transformation != CIwMat2D::g_Identity)
+		for (CIwSVec2* pi=v; pi!=v+4; ++pi)
+			*pi = renderContext->transformation.TransformVec(*pi);
+
+	IwGxSetVertStreamScreenSpace(v,4);
+	IwGxSetColStream(col);
+	IwGxSetUVStream(uv);
+	IwGxDrawPrims(IW_GX_QUAD_LIST, 0, 4);
 }
 uint32 CtoeSimpleMenuImage::GetElementNameHash()
 {

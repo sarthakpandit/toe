@@ -80,7 +80,8 @@ void CtoeSimpleMenuRoot::Render()
 	int16 w = IwGxGetScreenWidth();
 	int16 h = IwGxGetScreenHeight();
 	renderContext.viewportSize = CIwSVec2(w,h);
-	styleSettings.Background.Render(CIwSVec2::g_Zero,CIwSVec2(w,h));
+	//renderContext.transformation.SetRot(IW_GEOM_ONE/8, CIwVec2(w/2,h/2));
+	styleSettings.Background.Render(CIwSVec2::g_Zero,CIwSVec2(w,h), renderContext.transformation);
 	
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
@@ -316,13 +317,25 @@ void CtoeSimpleMenuRoot::SetFocusTo(CtoeSimpleMenuItem* i)
 bool CtoeSimpleMenuRoot::TouchEvent(TouchContext* touchContext)
 {
 	activeTouch = touchContext;
-	CtoeSimpleMenuItem* i = FindActiveItemAt(touchContext->currentPoistion);
-	if (i)
+	if (scrollAnimation != 0)
 	{
-		if (activeItem != i)
+		isVerticalScrolled = true;
+		if (activeItem)
 		{
-			SetFocusTo(i);
-			i->Touch(touchContext);
+			SetFocusTo(0);
+			activeItem = 0;
+		}
+	}
+	else
+	{
+		CtoeSimpleMenuItem* i = FindActiveItemAt(touchContext->currentPoistion);
+		if (i)
+		{
+			if (activeItem != i)
+			{
+				SetFocusTo(i);
+				i->Touch(touchContext);
+			}
 		}
 	}
 	return true;

@@ -41,7 +41,7 @@ void CtoeSimpleMenuBackground::Serialise()
 	}
 }
 
-void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& size)
+void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& size, const CIwMat2D & transformation)
 {
 	if (points.size() == 0)
 		return;
@@ -99,6 +99,9 @@ void CtoeSimpleMenuBackground::Render(const CIwSVec2& origin, const CIwSVec2& si
 	if (alpha)
 		m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
 	IwGxSetMaterial(m);
+	if (transformation != CIwMat2D::g_Identity)
+		for (uint32 i=0; i<numP; ++i)
+			v[i] = transformation.TransformVec(v[i]);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetUVStream(uv);
 	IwGxSetColStream(col);
