@@ -16,6 +16,7 @@ namespace TinyOpenEngine
 		lua_State *L;
 		int currentArg;
 		int numRes;
+		CIwArray<uint32> openScripts;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeLuaState);
@@ -40,11 +41,13 @@ namespace TinyOpenEngine
 		virtual void ReturnNil();
 		virtual void Return();
 		virtual void Return(int i);
+		virtual void Return(bool i);
 		virtual void Return(float i);
 		virtual void Return(const char*);
 		virtual void Return(void*,CtoeScriptableClassDeclaration*);
 
 		virtual int PopArgInt();
+		virtual bool PopArgBool();
 		virtual float PopArgFloat();
 		virtual const char* PopArgStr();
 		virtual void* PopArgClass(CtoeScriptableClassDeclaration*);

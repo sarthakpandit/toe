@@ -306,56 +306,33 @@ void CtoeSimpleMenuItem::ApplyStyle(CtoeSimpleMenuStyle* style)
 {
 	style->Apply(&combinedStyle);
 }
-CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip)
+
+
+bool CtoeSimpleMenuItem::VisitForward(ItoeSimpleMenuVisitor* visitor)
 {
-	if (skipItem == this)
-	{
-		skipItem = 0;
-	}
-	else if (IsActive())
-	{
-		if (!skipItem)
-		{
-			if (!toSkip)
-				return this;
-			--toSkip;
-		}
-	}
+	if (!visitor->Visited(this))
+		return false;
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		CtoeSimpleMenuItem* foundItem = item->FindActiveItemForward(skipItem,toSkip);
-		if (foundItem)
-			return foundItem;
+		if (!item->VisitForward(visitor))
+			return false;
 	}
-	return 0;
+	return true;
 }
-CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip)
+bool CtoeSimpleMenuItem::VisitBackward(ItoeSimpleMenuVisitor* visitor)
 {
 	CIwManaged** i = childItems.GetEnd();
 	for (; i!=childItems.GetBegin();)
 	{
 		--i;
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		CtoeSimpleMenuItem* foundItem = item->FindActiveItemForward(skipItem,toSkip);
-		if (foundItem)
-			return foundItem;
+		if (!item->VisitForward(visitor))
+			return false;
 	}
-	if (skipItem == this)
-	{
-		skipItem = 0;
-	}
-	else if (IsActive())
-	{
-		if (!skipItem)
-		{
-			if (!toSkip)
-				return this;
-			--toSkip;
-		}
-	}
-	return 0;
+	return visitor->Visited(this);
 }
+
 
 CtoeSimpleMenuItem* CtoeSimpleMenuItem::FindActiveItemAt(const CIwVec2 & pos)
 {

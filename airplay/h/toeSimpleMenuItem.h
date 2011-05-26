@@ -11,6 +11,14 @@
 
 namespace TinyOpenEngine
 {
+	class CtoeSimpleMenuItem;
+
+	class ItoeSimpleMenuVisitor
+	{
+	public:
+		virtual bool Visited(CtoeSimpleMenuItem*)=0;
+	};
+
 	struct toeSimpleMenuItemContext
 	{
 		CtoeSimpleMenuStyleSettings* parentStyle;
@@ -108,8 +116,10 @@ namespace TinyOpenEngine
 		virtual void TouchReleased(TouchContext* touchContext);
 		virtual void TouchMotion(TouchContext* touchContext);
 		virtual bool IsActive() const {return false;}
-		virtual CtoeSimpleMenuItem* FindActiveItemForward(CtoeSimpleMenuItem* &skipItem, int & toSkip);
-		virtual CtoeSimpleMenuItem* FindActiveItemBackward(CtoeSimpleMenuItem* &skipItem,int & toSkip);
+
+		virtual bool VisitForward(ItoeSimpleMenuVisitor* visitor);
+		virtual bool VisitBackward(ItoeSimpleMenuVisitor* visitor);
+
 		void InitTree(CtoeSimpleMenuRoot*,CtoeSimpleMenuItem*);
 
 	protected:

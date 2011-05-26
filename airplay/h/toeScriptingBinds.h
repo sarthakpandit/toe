@@ -12,6 +12,7 @@ namespace TinyOpenEngine
 		template <> inline float FetchArgument<float>(ItoeScriptingSubsystem* system) { return system->PopArgFloat(); };
 		template <> inline double FetchArgument<double>(ItoeScriptingSubsystem* system) { return system->PopArgFloat(); };
 		template <> inline const char* FetchArgument<const char *>(ItoeScriptingSubsystem* system) { return system->PopArgStr(); };
+		template <> inline bool FetchArgument<bool>(ItoeScriptingSubsystem* system) { return system->PopArgBool(); };
 
 		template <class T> inline void PushResult(ItoeScriptingSubsystem* system, T t) { system->Return(t); };
 		template <class PTR> inline void PushResult(ItoeScriptingSubsystem* system, PTR* t)

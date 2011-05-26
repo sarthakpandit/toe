@@ -27,6 +27,9 @@ files
 	toeScriptingSubsystem.cpp
 	toeUtils.cpp
 	toeConfig.cpp
+	toeAccelerometer.cpp
+	toeCompass.cpp
+	toeLocation.cpp 
 
 	[h]
 	("h")
