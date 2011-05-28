@@ -1,6 +1,7 @@
 #include <IwTextParserITX.h>
 #include <IwResManager.h>
 #include <IwGx.h>
+#include "TinyOpenEngine.h"
 #include "TinyOpenEngine.SimpleMenu.h"
 #include "toeSimpleMenuRoot.h"
 #include "toeSimpleMenuItem.h"
@@ -10,6 +11,21 @@ using namespace TinyOpenEngine;
 
 namespace TinyOpenEngine
 {
+	class CtoeSimpleMenuFindById: public ItoeSimpleMenuVisitor
+	{
+		public:
+		CtoeSimpleMenuItem* m_found;
+		uint32 m_hash;
+		CtoeSimpleMenuFindById(uint32 h):m_found(0),m_hash(h){}
+		virtual bool Visited(CtoeSimpleMenuItem*i) {
+			if (i->GetElementIdHash() == m_hash)
+			{
+				m_found = i;
+				return false;
+			}
+			return true;
+		}
+	};
 	class CtoeSimpleMenuNextActive: public ItoeSimpleMenuVisitor
 	{
 	public:
@@ -70,6 +86,7 @@ void CtoeSimpleMenuRoot::Serialise ()
 	childItems.Serialise();
 	style.Serialise();
 	IwSerialiseUInt32(styleSheetHash);
+	toeSerialiseString(onUpdate);
 	if (IwSerialiseIsReading())
 	{
 		if (styleSheetHash)
@@ -183,6 +200,9 @@ void CtoeSimpleMenuRoot::Update(iwfixed dt)
 		scrollAnimationAcc = 0;
 		content->SetOrigin(CIwSVec2(0,contentAreaOffset+contentOffset));
 	}
+
+	if (onUpdate.size() > 0)
+		simpleMenu->Eval(this, this->GetInstanceClassDescription(), onUpdate.c_str());
 }
 void CtoeSimpleMenuRoot::AlignBlocks()
 {
@@ -205,7 +225,18 @@ void CtoeSimpleMenuRoot::AlignBlocks()
 	}
 
 }
-bool CtoeSimpleMenuRoot::VisitForward(ItoeSimpleMenuVisitor* visitor)
+CtoeSimpleMenuItem* CtoeSimpleMenuRoot::GetItemById(const char*s) const
+{
+	return GetItemByHash(IwHashString(s));
+}
+CtoeSimpleMenuItem* CtoeSimpleMenuRoot::GetItemByHash(uint32 h) const
+{
+	CtoeSimpleMenuFindById v(h);
+	VisitForward(&v);
+	return v.m_found;
+}
+
+bool CtoeSimpleMenuRoot::VisitForward(ItoeSimpleMenuVisitor* visitor) const
 {
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
@@ -215,14 +246,14 @@ bool CtoeSimpleMenuRoot::VisitForward(ItoeSimpleMenuVisitor* visitor)
 	}
 	return true;
 }
-bool CtoeSimpleMenuRoot::VisitBackward(ItoeSimpleMenuVisitor* visitor)
+bool CtoeSimpleMenuRoot::VisitBackward(ItoeSimpleMenuVisitor* visitor) const
 {
 	CIwManaged** i = childItems.GetEnd();
 	for (; i!=childItems.GetBegin(); )
 	{
 		--i;
 		CtoeSimpleMenuItem* item = static_cast<CtoeSimpleMenuItem*>(*i);
-		if (!item->VisitForward(visitor))
+		if (!item->VisitBackward(visitor))
 			return false;
 	}
 	return true;
@@ -248,7 +279,7 @@ bool CtoeSimpleMenuRoot::KeyEvent(KeyContext* keyContext)
 		case s3eKeyUp:
 			{
 				CtoeSimpleMenuNextActive v(activeItem);
-				VisitForward(&v);
+				VisitBackward(&v);
 				if (v.m_found)
 				{
 					SetFocusTo(v.m_found);
@@ -259,7 +290,7 @@ bool CtoeSimpleMenuRoot::KeyEvent(KeyContext* keyContext)
 		case s3eKeyDown:
 			{
 				CtoeSimpleMenuNextActive v(activeItem);
-				VisitBackward(&v);
+				VisitForward(&v);
 				if (v.m_found)
 				{
 					SetFocusTo(v.m_found);
@@ -316,7 +347,7 @@ void CtoeSimpleMenuRoot::Eval(CtoeSimpleMenuItem*item, const char*s)
 	if (!s || !*s)
 		return;
 	if (simpleMenu)
-		simpleMenu->Eval(item,s);
+		simpleMenu->Eval(item,item->GetInstanceClassDescription(),s);
 }
 void CtoeSimpleMenuRoot::SetFocusTo(CtoeSimpleMenuItem* i)
 {
@@ -409,6 +440,11 @@ bool	CtoeSimpleMenuRoot::ParseAttribute(CIwTextParserITX* pParser, const char* p
 	if (!stricmp("style",pAttrName))
 	{
 		pParser->PushObject(&style);
+		return true;
+	}
+	if (!stricmp(pAttrName, "onupdate"))
+	{
+		toeReadString(pParser, &onUpdate);
 		return true;
 	}
 	return CIwResource::ParseAttribute(pParser, pAttrName);

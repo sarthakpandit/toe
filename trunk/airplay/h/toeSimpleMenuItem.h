@@ -37,6 +37,7 @@ namespace TinyOpenEngine
 		CIwSVec2 size;
 		uint32 styleClass;
 		uint32 state;
+		uint32 idHash;
 		//CIwSVec4 margin;
 		//CIwSVec4 padding;
 		CtoeSimpleMenuRoot*root;
@@ -109,6 +110,7 @@ namespace TinyOpenEngine
 		virtual uint32 GetElementNameHash();
 		virtual uint32 GetElementClassHash();
 		virtual uint32 GetElementStateHash();
+		uint32 GetElementIdHash() { return idHash; }
 		//Finds an active item in children
 		virtual CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & item);
 		virtual void SetFocus(bool f);

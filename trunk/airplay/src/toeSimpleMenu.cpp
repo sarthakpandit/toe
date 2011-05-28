@@ -87,14 +87,14 @@ void CtoeSimpleMenu::Initialize(CtoeWorld*w)
 	}
 }
 
-void CtoeSimpleMenu::Eval(CtoeSimpleMenuItem*item, const char*s)
+void CtoeSimpleMenu::Eval(void*item, CtoeScriptableClassDeclaration*d, const char*s)
 {
 	if (!scriptSubsystemHash)
 		return;
 	ItoeScriptingSubsystem* i = dynamic_cast<ItoeScriptingSubsystem*>(toeWorld->GetSubsystem(scriptSubsystemHash));
 	if (i)
 	{
-		i->Eval(s, item, item->GetClassDescription());
+		i->Eval(s, item, d);
 	}
 }
 

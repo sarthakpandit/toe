@@ -4,12 +4,12 @@
 
 namespace TinyOpenEngine
 {
-	class CtoeUtils
+	class CtoeLoadingScreen
 	{
 	public:
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
 
-		static CIwManaged* GetResourceByName(const char* id,const char* type);
+		static void Render();
 	};
 }

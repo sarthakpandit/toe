@@ -1,8 +1,12 @@
 #include <s3e.h>
+#include <IwGx.h>
+#include <IwGraphics.h>
 #include <IwTextParserITX.h>
 //#include <s3eTouchpad.h>
 #include "TinyOpenEngine.h"
 #include "toeConfig.h"
+#include "toeLoadingScreen.h"
+#include "toeUtils.h"
 #include "toeWorld.h"
 #include "toeScriptingSubsystem.h"
 #include "toeComponent.h"
@@ -18,7 +22,7 @@ namespace TinyOpenEngine
 	bool exitApplication = false;
 	CIwStringL* nextWorld = 0;
 	uint32 nextWorldHash = 0;
-	s3eSocket* g_toeTraceSocket;
+	s3eSocket* g_toeTraceSocket=0;
 	CIwArray<CtoeScriptableClassDeclaration*>* toe_scriptClassDeclarations=0;
 	TtoeIntrusiveList<CtoeFeature> * toe_featuresList = 0;
 	TtoeIntrusiveList<CtoeFeature> * toeGetActiveFeatures()
@@ -95,6 +99,8 @@ void	TinyOpenEngine::toeReadString(CIwTextParserITX* pParser, std::string* s)
 }
 void TinyOpenEngine::toeTrace(const char* format, ...)
 {
+	if (!toeIsTraceEnabled())
+		return;
 	if (!g_toeTraceSocket)
 	{
 		g_toeTraceSocket = s3eSocketCreate(S3E_SOCKET_UDP);
@@ -114,11 +120,17 @@ void TinyOpenEngine::toeTrace(const char* format, ...)
 }
 bool TinyOpenEngine::toeIsTraceEnabled()
 {
-	return true;
+	return false;
 	//return 0!=s3eDebugGetInt(S3E_DEBUG_TRACE_ENABLED);
 }
 void TinyOpenEngine::toeInit()
 {
+	IwGxInit();
+	IwResManagerInit();
+	IwGraphicsInit();
+
+	CtoeLoadingScreen::Render();
+
 	if (isTinyOpenEngineInitialized)
 		return;
 	isTinyOpenEngineInitialized = true;
@@ -139,6 +151,7 @@ void TinyOpenEngine::toeInit()
 	toeRegisterClass(CtoeLocation::GetClassDescription());
 	toeRegisterClass(CtoeCompass::GetClassDescription());
 	toeRegisterClass(CtoeAudio::GetClassDescription());
+	toeRegisterClass(CtoeUtils::GetClassDescription());
 
 	CtoeConfig::Load();
 
@@ -218,6 +231,10 @@ void TinyOpenEngine::toeTerminate()
 
 	if (toeIsTraceEnabled())
 		toeTrace("Application closed gracefully");
+
+	IwGraphicsTerminate();
+	IwResManagerTerminate();
+	IwGxTerminate();
 }
 void TinyOpenEngine::toeLoadAndRunNextWorld()
 {
