@@ -7,6 +7,10 @@ namespace TinyOpenEngine
 		template <class T> class StripPointer { public: typedef T STRIPPED; };
 		template <class T> class StripPointer<T*> { public: typedef T STRIPPED; };
 
+		CtoeScriptableClassDeclaration* GetManagedInstanceClassDescription(CIwManaged* t);
+		template <class T> inline CtoeScriptableClassDeclaration* GetInstanceClassDescription(T*t) { return t->GetInstanceClassDescription(); }
+		template <> inline CtoeScriptableClassDeclaration* GetInstanceClassDescription<CIwManaged>(CIwManaged*t) { return GetManagedInstanceClassDescription(t); }
+
 		template <typename T> inline T FetchArgument(ItoeScriptingSubsystem* system) { return system->PopArgClass(StripPointer<T>::STRIPPED::GetClassDescription()); };
 		template <> inline int FetchArgument<int>(ItoeScriptingSubsystem* system) { return system->PopArgInt(); };
 		template <> inline float FetchArgument<float>(ItoeScriptingSubsystem* system) { return system->PopArgFloat(); };
@@ -18,7 +22,7 @@ namespace TinyOpenEngine
 		template <class PTR> inline void PushResult(ItoeScriptingSubsystem* system, PTR* t)
 		{
 			if (t)
-				system->Return(t, t->GetInstanceClassDescription());
+				system->Return(t, GetInstanceClassDescription(t));
 			else
 				system->ReturnNil();
 		};

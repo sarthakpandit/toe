@@ -4,6 +4,7 @@
 #include <IwManagedList.h>
 
 #include <toeInput.h>
+#include <string>
 #include "toeSimpleMenuStyleSheet.h"
 #include "toeSimpleMenuItem.h"
 
@@ -13,6 +14,7 @@ namespace TinyOpenEngine
 	//class CtoeSimpleMenuItem;
 	class CtoeSimpleMenuRoot : public CIwResource
 	{
+		std::string onUpdate;
 	protected:
 		CIwManagedList childItems;
 		uint32 styleSheetHash;
@@ -55,10 +57,12 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuItem* GetContent() const { return (childItems.GetSize() > 0)?static_cast<CtoeSimpleMenuItem*>(childItems[0]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* GetHeader() const { return (childItems.GetSize() > 1)?static_cast<CtoeSimpleMenuItem*>(childItems[1]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* GetFooter() const { return (childItems.GetSize() > 2)?static_cast<CtoeSimpleMenuItem*>(childItems[2]):(CtoeSimpleMenuItem*)0;}
+		CtoeSimpleMenuItem* GetItemById(const char*) const;
+		CtoeSimpleMenuItem* GetItemByHash(uint32 h) const;
 		CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & coord);
 		
-		bool VisitForward(ItoeSimpleMenuVisitor* visitor);
-		bool VisitBackward(ItoeSimpleMenuVisitor* visitor);		
+		bool VisitForward(ItoeSimpleMenuVisitor* visitor) const;
+		bool VisitBackward(ItoeSimpleMenuVisitor* visitor) const;	
 
 		virtual bool TouchEvent(TouchContext* touchContext);
 		virtual bool TouchReleaseEvent(TouchContext* touchContext);

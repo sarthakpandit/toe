@@ -30,6 +30,7 @@ files
 	toeAccelerometer.cpp
 	toeCompass.cpp
 	toeLocation.cpp 
+	toeLoadingScreen.cpp
 
 	[h]
 	("h")
@@ -53,6 +54,7 @@ files
 	toeUtils.h
 	toeConfig.h
 	toeScriptingBinds.h 
+	toeLoadingScreen.h
 }
 subprojects
 {

@@ -3,6 +3,7 @@
 #include <IwGeom.h>
 #include <toeSubsystem.h>
 #include <toeSubsystemItems.h>
+#include <toeScriptingSubsystem.h>
 
 namespace TinyOpenEngine
 {
@@ -39,7 +40,7 @@ namespace TinyOpenEngine
 		virtual void UnhandledTouchReleaseEvent(TouchContext* touchContext);
 		virtual void UnhandledTouchMotionEvent(TouchContext* touchContext);
 		virtual void UnhandledKeyEvent(KeyContext* keyContext);
-		void Eval(CtoeSimpleMenuItem*item, const char*s);
+		void Eval(void*item, CtoeScriptableClassDeclaration*d, const char*s);
 #ifdef IW_BUILD_RESOURCES
 
 		//Parses from text file: parses attribute/value pair.

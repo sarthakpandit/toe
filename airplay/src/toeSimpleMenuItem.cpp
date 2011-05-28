@@ -26,6 +26,7 @@ CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 	size = CIwSVec2::g_Zero;
 	styleClass = TOE_ANYSTYLE;
 	state = TOE_ANYSTYLE;
+	idHash = 0;
 }
 //Desctructor
 CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
@@ -54,6 +55,7 @@ void CtoeSimpleMenuItem::Serialise ()
 	style.Serialise();
 	IwSerialiseUInt32(styleClass);
 	IwSerialiseUInt32(state);
+	IwSerialiseUInt32(idHash);
 }
 
 
@@ -369,6 +371,7 @@ void CtoeSimpleMenuItem::TouchMotion(TouchContext* touchContext)
 uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
 uint32 CtoeSimpleMenuItem::GetElementClassHash() { return styleClass; }
 uint32 CtoeSimpleMenuItem::GetElementStateHash() { return state; }
+
 #ifdef IW_BUILD_RESOURCES
 //Parses from text file: start block.
 void	CtoeSimpleMenuItem::ParseOpen(CIwTextParserITX* pParser)
@@ -401,6 +404,12 @@ bool	CtoeSimpleMenuItem::ParseAttribute(CIwTextParserITX* pParser, const char* p
 		childItems.Add(tb);
 		return true;
 	}
+	if (!stricmp("id", pAttrName))
+	{
+		pParser->ReadStringHash(&idHash);
+		return true;
+	}
+	
 	if (!stricmp("image", pAttrName))
 	{
 		uint32 t;
