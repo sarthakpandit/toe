@@ -32,6 +32,8 @@ CtoeAccelerometer* CtoeAccelerometer::RequestFeature()
 {
 	if (g_toeAccelerometer)
 		return g_toeAccelerometer;
+	if (!IsAvailable())
+		return 0;
 	g_toeAccelerometer = new CtoeAccelerometer();
 	g_toeAccelerometer->Start();
 	return g_toeAccelerometer;
@@ -46,16 +48,19 @@ void CtoeAccelerometer::StopFeature()
 }
 int CtoeAccelerometer::GetX()
 {
-	RequestFeature();
-	return s3eAccelerometerGetX();
+	if (RequestFeature())
+		return s3eAccelerometerGetX();
+	return 0;
 }
 int CtoeAccelerometer::GetY()
 {
-	RequestFeature();
-	return s3eAccelerometerGetY();
+	if (RequestFeature())
+		return s3eAccelerometerGetY();
+	return 0;
 }
 int CtoeAccelerometer::GetZ()
 {
-	RequestFeature();
-	return s3eAccelerometerGetZ();
+	if (RequestFeature())
+		return s3eAccelerometerGetZ();
+	return 1000;
 }

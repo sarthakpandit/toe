@@ -51,10 +51,10 @@ void CtoeLoadingScreen::Render()
 		a += step;
 		iwfixed c2 = IwGeomCos(a);
 		iwfixed s2 = IwGeomSin(a);
-		c.r = c.g = c.b = i*colS;
+		c.r = c.g = c.b = 255-i*colS;
 		col[index] = c;		v[index++] = CIwSVec2(x+c1*r/IW_GEOM_ONE,y+s1*r/IW_GEOM_ONE);
 		col[index] = c;		v[index++] = CIwSVec2(x+c1*r2/IW_GEOM_ONE,y+s1*r2/IW_GEOM_ONE);
-		c.r = c.g = c.b = (i+1)*colS;
+		c.r = c.g = c.b = 255-(i+1)*colS;
 		col[index] = c;		v[index++] = CIwSVec2(x+c2*r2/IW_GEOM_ONE,y+s2*r2/IW_GEOM_ONE);
 		col[index] = c;		v[index++] = CIwSVec2(x+c2*r/IW_GEOM_ONE,y+s2*r/IW_GEOM_ONE);
 

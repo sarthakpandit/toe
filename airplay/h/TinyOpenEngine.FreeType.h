@@ -7,4 +7,8 @@ namespace TinyOpenEngine
 	void toeFreeTypeTerminate();
 
 	int32 toeGetScreenDPI();
+
+	void toeTransformScreenSpace3D(CIwSVec2*begin,CIwSVec2*end,const CIwMat & t);
+	void toeTransformScreenSpace3D(CIwSVec2*begin,CIwSVec2*end,const CIwMat & t,const CIwSVec2 &);
+
 }

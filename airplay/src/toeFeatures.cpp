@@ -38,19 +38,6 @@ void CtoeFeature::Stop()
 
 
 
-//Get scriptable class declaration
-CtoeScriptableClassDeclaration* CtoeCompass::GetClassDescription()
-{
-	static  TtoeScriptableClassDeclaration<CtoeAccelerometer> d ("CtoeCompass",
-		ScriptTraits::Method("IsAvailable", &CtoeAccelerometer::IsAvailable),
-			0);
-	return &d;
-}
-bool CtoeCompass::IsAvailable()
-{
-	return s3eCompassAvailable() != 0;
-}
-
 
 
 

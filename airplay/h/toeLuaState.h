@@ -1,6 +1,8 @@
 #pragma once
 
 #include <IwGeom.h>
+#include <string>
+#include <IwString.h>
 #include <toeSubsystem.h>
 #include <toeSubsystemItems.h>
 #include "toeLua.h"
@@ -45,6 +47,9 @@ namespace TinyOpenEngine
 		virtual void Return(float i);
 		virtual void Return(const char*);
 		virtual void Return(void*,CtoeScriptableClassDeclaration*);
+		//virtual void Return(const std::string&);
+		//virtual void Return(const CIwStringL&);
+		//virtual void Return(const CIwStringS&);
 
 		virtual int PopArgInt();
 		virtual bool PopArgBool();

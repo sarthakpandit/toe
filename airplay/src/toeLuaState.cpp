@@ -169,8 +169,26 @@ void CtoeLuaState::Return(float i)
 void CtoeLuaState::Return(const char*s)
 {
 	++numRes;
-	lua_pushstring(L,s);
+	if (!s)
+		lua_pushnil(L);
+	return
+		lua_pushstring(L,s);
 }
+//void CtoeLuaState::Return(const std::string& s)
+//{
+//	++numRes;
+//	lua_pushstring(L,s.c_str());
+//}
+//void CtoeLuaState::Return(const CIwStringL& s)
+//{
+//	++numRes;
+//	lua_pushstring(L,s.c_str());
+//}
+//void CtoeLuaState::Return(const CIwStringS& s)
+//{
+//	++numRes;
+//	lua_pushstring(L,s.c_str());
+//}
 void CtoeLuaState::Return(void*instance,CtoeScriptableClassDeclaration*l)
 {
 	++numRes;

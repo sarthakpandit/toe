@@ -50,8 +50,7 @@ uint32 CtoeSimpleMenuClickable::GetElementNameHash()
 }
 void CtoeSimpleMenuClickable::TouchReleased(TouchContext* touchContext)
 {
-	if (onClick.size() > 0)
-		GetRoot()->Eval(this, onClick.c_str());
+	SendLazyEvent(new CtoeSimpleMenuLazyClick(this));
 }
 #ifdef IW_BUILD_RESOURCES
 

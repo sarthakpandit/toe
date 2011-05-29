@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace TinyOpenEngine
 {
 	namespace ScriptTraits
@@ -19,6 +21,7 @@ namespace TinyOpenEngine
 		template <> inline bool FetchArgument<bool>(ItoeScriptingSubsystem* system) { return system->PopArgBool(); };
 
 		template <class T> inline void PushResult(ItoeScriptingSubsystem* system, T t) { system->Return(t); };
+		template <> inline void PushResult<std::string>(ItoeScriptingSubsystem* system, std::string t) { system->Return(t.c_str()); };
 		template <class PTR> inline void PushResult(ItoeScriptingSubsystem* system, PTR* t)
 		{
 			if (t)

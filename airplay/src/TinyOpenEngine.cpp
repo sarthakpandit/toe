@@ -31,6 +31,11 @@ namespace TinyOpenEngine
 			toe_featuresList = new TtoeIntrusiveList<CtoeFeature>();
 		return toe_featuresList;
 	}
+	void toeLoadingCallback()
+	{
+		if (IwSerialiseIsReading())
+			CtoeLoadingScreen::Render();
+	}
 
 	void toeLoadAndRunNextWorld();
 	void toeExitApplication()
@@ -59,7 +64,7 @@ namespace TinyOpenEngine
 	{
 		inputFilter->PointerMotionEvent(e);
 	}
-
+	
 }
 //Reads/writes a binary file using @a IwSerialise interface.
 void TinyOpenEngine::toeSerialiseString (std::string & s)
@@ -155,6 +160,12 @@ void TinyOpenEngine::toeInit()
 
 	CtoeConfig::Load();
 
+	IwSerialiseSetCallbackPeriod(4*1024);
+	IwSerialiseSetCallback(TinyOpenEngine::toeLoadingCallback);
+	IwGetResManager()->SetBuildGroupCallbackPre(TinyOpenEngine::toeLoadingCallback);
+	IwGetResManager()->SetBuildGroupCallbackPost(TinyOpenEngine::toeLoadingCallback);
+
+
 	if (!inputFilter)
 		inputFilter = new CtoeInputFilter();
 	
@@ -185,6 +196,10 @@ void TinyOpenEngine::toeTerminate()
 	CtoeConfig::Save();
 	CtoeConfig::Close();
 
+	IwSerialiseSetCallback(0);
+	IwGetResManager()->SetBuildGroupCallbackPre(0);
+	IwGetResManager()->SetBuildGroupCallbackPost(0);
+
 	if (g_toeTraceSocket)
 	{
 		s3eSocketClose(g_toeTraceSocket);
@@ -205,6 +220,7 @@ void TinyOpenEngine::toeTerminate()
 		delete inputFilter;
 		inputFilter = 0;
 	}
+
 
 	s3eKeyboardUnRegister(S3E_KEYBOARD_KEY_EVENT, (s3eCallback)toeKeyboardKeyEvent);
 	if (s3ePointerGetInt(S3E_POINTER_MULTI_TOUCH_AVAILABLE))

@@ -2,15 +2,15 @@
 
 namespace TinyOpenEngine
 {
-	template<class T> class TtoeIntrusiveList;
+	template<class T,typename TAG=void> class TtoeIntrusiveList;
 
-	template<class T> class TtoeIntrusiveListItem
+	template<class T,typename TAG=void> class TtoeIntrusiveListItem
 	{
-		friend class TtoeIntrusiveList<T>;
+		friend class TtoeIntrusiveList<T,TAG>;
 	protected:
-		TtoeIntrusiveList<T>*	listContainer;
-		TtoeIntrusiveListItem<T>* prevSibling;
-		TtoeIntrusiveListItem<T>* nextSibling;
+		TtoeIntrusiveList<T,TAG>*	listContainer;
+		TtoeIntrusiveListItem<T,TAG>* prevSibling;
+		TtoeIntrusiveListItem<T,TAG>* nextSibling;
 	public:
 		inline TtoeIntrusiveListItem():listContainer(0),prevSibling(0),nextSibling(0){}
 		inline virtual ~TtoeIntrusiveListItem(){Detach();}
@@ -18,29 +18,32 @@ namespace TinyOpenEngine
 		inline T* GetPrevious() const {return static_cast<T*>(prevSibling); }
 		inline T* GetNext() const {return static_cast<T*>(nextSibling); }
 
-		void AttachHead(TtoeIntrusiveList<T>* node);
-		void AttachTail(TtoeIntrusiveList<T>* node);
+		void AttachHead(TtoeIntrusiveList<T,TAG>* node);
+		void AttachTail(TtoeIntrusiveList<T,TAG>* node);
 		void SwapNext();
 		void SwapPrev();
-		void InsertBefore(TtoeIntrusiveListItem<T>* node);
-		void InsertAfter(TtoeIntrusiveListItem<T>* node);
+		void InsertBefore(TtoeIntrusiveListItem<T,TAG>* node);
+		void InsertAfter(TtoeIntrusiveListItem<T,TAG>* node);
 		void Detach();
 	};
 
-	template<class T> class TtoeIntrusiveList
+	template<class T,typename TAG> class TtoeIntrusiveList
 	{
-		friend class TtoeIntrusiveListItem<T>;
+		friend class TtoeIntrusiveListItem<T,TAG>;
 	protected:
-		TtoeIntrusiveListItem<T>* firstChild;
-		TtoeIntrusiveListItem<T>* lastChild;
+		TtoeIntrusiveListItem<T,TAG>* firstChild;
+		TtoeIntrusiveListItem<T,TAG>* lastChild;
 	public:
 		inline TtoeIntrusiveList():firstChild(0),lastChild(0){}
 
 		inline T* GetFirstChild() const {return static_cast<T*>(firstChild); }
 		inline T* GetLastChild() const {return static_cast<T*>(lastChild); }
+
+		inline void AttachHead(TtoeIntrusiveListItem<T,TAG>* node) { if(node) node->AttachHead(this);}
+		inline void AttachTail(TtoeIntrusiveListItem<T,TAG>* node) { if(node) node->AttachTail(this);}
 	};
 
-	template<class T> inline void TtoeIntrusiveListItem<T>::AttachTail(TtoeIntrusiveList<T>* list)
+	template<class T,typename TAG> inline void TtoeIntrusiveListItem<T,TAG>::AttachTail(TtoeIntrusiveList<T,TAG>* list)
 	{
 		Detach();
 		listContainer = list;
@@ -57,7 +60,7 @@ namespace TinyOpenEngine
 	};
 
 
-	template<class T> inline void TtoeIntrusiveListItem<T>::AttachHead(TtoeIntrusiveList<T>* list)
+	template<class T,typename TAG> inline void TtoeIntrusiveListItem<T,TAG>::AttachHead(TtoeIntrusiveList<T,typename TAG>* list)
 	{
 		Detach();
 		listContainer = list;
@@ -74,7 +77,7 @@ namespace TinyOpenEngine
 	};
 
 
-	template<class T> inline void TtoeIntrusiveListItem<T>::Detach()
+	template<class T,typename TAG> inline void TtoeIntrusiveListItem<T,TAG>::Detach()
 	{
 		if (!listContainer) return;
 		if (listContainer->lastChild == this) listContainer->lastChild = prevSibling;

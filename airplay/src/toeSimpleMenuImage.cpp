@@ -2,6 +2,7 @@
 #include <IwResManager.h>
 #include <IwGx.h>
 #include "toeSimpleMenuImage.h"
+#include "TinyOpenEngine.FreeType.h"
 
 using namespace TinyOpenEngine;
 
@@ -109,9 +110,7 @@ void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
 	CIwColour* col =IW_GX_ALLOC(CIwColour,4);
 	col[0] = col[1] = col[2] = col[3] = rectColour;
 
-	if (renderContext->transformation != CIwMat2D::g_Identity)
-		for (CIwSVec2* pi=v; pi!=v+4; ++pi)
-			*pi = renderContext->transformation.TransformVec(*pi);
+	toeTransformScreenSpace3D(v,v+4,renderContext->transformation, renderContext->viewportSize);
 
 	IwGxSetVertStreamScreenSpace(v,4);
 	IwGxSetColStream(col);
