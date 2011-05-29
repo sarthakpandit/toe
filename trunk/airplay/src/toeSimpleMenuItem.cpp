@@ -5,6 +5,7 @@
 #include "toeSimpleMenuItem.h"
 #include "toeSimpleMenuTextBlock.h"
 #include "toeSimpleMenuImage.h"
+#include "TinyOpenEngine.FreeType.h"
 
 using namespace TinyOpenEngine;
 
@@ -32,6 +33,8 @@ CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
 {
 	childItems.Delete();
+	while (lazyEvents.GetFirstChild())
+		delete lazyEvents.GetFirstChild();
 }
 //Get scriptable class declaration
 CtoeScriptableClassDeclaration* CtoeSimpleMenuItem::GetClassDescription()
@@ -116,6 +119,7 @@ void CtoeSimpleMenuItem::RenderBackgroud(toeSimpleMenuItemContext* renderContext
 	combinedStyle.Background.Render(
 		GetOrigin()+CIwSVec2(GetMarginLeft()+GetBorderLeft(),GetMarginTop()+GetBorderTop()), 
 		GetSize()-CIwSVec2(GetMarginLeft()+GetMarginRight()+GetBorderLeft()+GetBorderRight(),GetMarginTop()+GetMarginBottom()+GetBorderTop()+GetBorderBottom()),
+		renderContext->viewportSize,
 		renderContext->transformation);
 }
 void CtoeSimpleMenuItem::RenderShadow(toeSimpleMenuItemContext* renderContext)
@@ -200,9 +204,8 @@ void CtoeSimpleMenuItem::RenderShadow(toeSimpleMenuItemContext* renderContext)
 
 	m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
 	IwGxSetMaterial(m);
-	if (renderContext->transformation != CIwMat2D::g_Identity)
-		for (CIwSVec2* pi=v; pi!=v+vertices; ++pi)
-			*pi = renderContext->transformation.TransformVec(*pi);
+
+	toeTransformScreenSpace3D(v,v+vertices,renderContext->transformation, renderContext->viewportSize);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetColStream(col);
 	IwGxSetUVStream(0);
@@ -264,9 +267,7 @@ void CtoeSimpleMenuItem::RenderBorder(toeSimpleMenuItemContext* renderContext)
 	if (combinedStyle.BorderColor.a != 255)
 		m->SetAlphaMode(CIwMaterial::ALPHA_BLEND);
 	IwGxSetMaterial(m);
-	if (renderContext->transformation != CIwMat2D::g_Identity)
-		for (CIwSVec2* pi=v; pi!=v+vertices; ++pi)
-			*pi = renderContext->transformation.TransformVec(*pi);
+	toeTransformScreenSpace3D(v,v+vertices,renderContext->transformation, renderContext->viewportSize);
 	IwGxSetVertStreamScreenSpace(v,vertices);
 	IwGxSetColStream(col);
 	IwGxDrawPrims(IW_GX_TRI_LIST, indices, i);
@@ -371,7 +372,11 @@ void CtoeSimpleMenuItem::TouchMotion(TouchContext* touchContext)
 uint32 CtoeSimpleMenuItem::GetElementNameHash() { return TOE_ANYSTYLE; }
 uint32 CtoeSimpleMenuItem::GetElementClassHash() { return styleClass; }
 uint32 CtoeSimpleMenuItem::GetElementStateHash() { return state; }
-
+void CtoeSimpleMenuItem::SendLazyEvent(CtoeSimpleMenuLazyEvent*e)
+{
+	lazyEvents.AttachTail(e);
+	GetRoot()->lazyEvents.AttachTail(e);
+}
 #ifdef IW_BUILD_RESOURCES
 //Parses from text file: start block.
 void	CtoeSimpleMenuItem::ParseOpen(CIwTextParserITX* pParser)

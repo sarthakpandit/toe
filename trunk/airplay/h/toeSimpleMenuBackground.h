@@ -25,7 +25,7 @@ namespace TinyOpenEngine
 
 		virtual void Serialise();
 
-		void Render(const CIwSVec2& origin, const CIwSVec2& size, const CIwMat2D & transformation);
+		void Render(const CIwSVec2& origin, const CIwSVec2& size, const CIwSVec2 & viewport, const CIwMat & transformation);
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: parses attribute/value pair.
 		virtual	bool	ParseAttribute(CIwTextParserITX* pParser, const char* pAttrName);

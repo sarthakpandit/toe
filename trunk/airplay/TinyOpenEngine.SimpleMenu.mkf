@@ -25,7 +25,7 @@ files
 	toeSimpleMenuStyleSheet.cpp
 	toeSimpleMenuTerminalItem.cpp
 	toeSimpleMenuTextBlock.cpp
-
+	toeSimpleMenuCompass.cpp
 
 	[h]
 	("h")
@@ -48,9 +48,11 @@ files
 	toeSimpleMenuStyleSheet.h 
 	toeSimpleMenuTerminalItem.h 
 	toeSimpleMenuTextBlock.h 
+	toeSimpleMenuCompass.h 
 }
 subprojects
 {
 	./TinyOpenEngine.mkf
 	./TinyOpenEngine.FreeType.mkf
+	./TinyOpenEngine.Net.mkf
 }

@@ -79,3 +79,22 @@ int32 TinyOpenEngine::toeGetScreenDPI()
 	}
 	return 163;
 }
+void TinyOpenEngine::toeTransformScreenSpace3D(CIwSVec2*begin,CIwSVec2*end,const CIwMat & t)
+{
+	toeTransformScreenSpace3D(begin, end, t, CIwSVec2(IwGxGetScreenWidth(),IwGxGetScreenHeight()));
+}
+void TinyOpenEngine::toeTransformScreenSpace3D(CIwSVec2*begin,CIwSVec2*end,const CIwMat & t,const CIwSVec2 & screenSize)
+{
+	if (t.IsIdentity())
+		return;
+	CIwSVec2 center(screenSize.x/2, screenSize.y/2);
+	for (CIwSVec2*a = begin; a!=end; ++a)
+	{
+		CIwVec3 v = t.TransformVec(CIwSVec3(a->x,a->y,0));
+		if (v.z != 0)
+		{
+			a->x = center.x+(a->x-center.x)*(screenSize.x)/(v.z+screenSize.x);
+			a->y = center.y+(a->y-center.y)*(screenSize.y)/(v.z+screenSize.y);
+		}
+	}
+}

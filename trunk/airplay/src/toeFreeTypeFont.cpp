@@ -2,6 +2,7 @@
 #include <IwResManager.h>
 #include <IwGx.h>
 #include "toeFreeTypeFont.h"
+#include "TinyOpenEngine.FreeType.h"
 #include <freetype/ftglyph.h>
 
 using namespace TinyOpenEngine;
@@ -518,17 +519,17 @@ bool CtoeFreeTypeFont::IsWhiteSpace(int32 code)
 		return true;
 	return false;
 }
-void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos)
+void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos,const CIwSVec2 & viewport)
 {
 	CIwColour c;c.Set(0xFFFFFFFF);
-	RenderAt(pos,CIwMat2D::g_Identity,c);
+	RenderAt(pos,viewport,CIwMat::g_Identity,c);
 }
-void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D & t)
+void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwSVec2 & viewport,const CIwMat & t)
 {
 	CIwColour c;c.Set(0xFFFFFFFF);
-	RenderAt(pos,t,c);
+	RenderAt(pos,viewport,t,c);
 }
-void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D & transformation, const CIwColour& col)
+void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwSVec2 & viewport,const CIwMat & transformation, const CIwColour& col)
 {
 	if (glyphs.size() == 0)
 		return;
@@ -549,9 +550,7 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D 
 	{
 		if (start+2000 == cur)
 		{
-			if (transformation != CIwMat2D::g_Identity)
-				for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
-					*pi = transformation.TransformVec(*pi);
+			toeTransformScreenSpace3D(vec+start,vec+cur,transformation, viewport);
 			IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 			IwGxSetUVStream(uv+start);
 			IwGxSetColStream(0);
@@ -562,9 +561,7 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D 
 		{
 			if (start != cur)
 			{
-				if (transformation != CIwMat2D::g_Identity)
-					for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
-						*pi = transformation.TransformVec(*pi);
+				toeTransformScreenSpace3D(vec+start,vec+cur,transformation,viewport);
 				IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 				IwGxSetUVStream(uv+start);
 				IwGxSetColStream(0);
@@ -597,9 +594,7 @@ void CtoeFreeTypeGlyphLayoutData::RenderAt(const CIwSVec2 & pos, const CIwMat2D 
 	}
 	if (start != cur)
 	{
-		if (transformation != CIwMat2D::g_Identity)
-			for (CIwSVec2* pi=vec+start; pi!=vec+cur; ++pi)
-				*pi = transformation.TransformVec(*pi);
+		toeTransformScreenSpace3D(vec+start,vec+cur,transformation, viewport);
 		IwGxSetVertStreamScreenSpace(vec+start,cur-start);
 		IwGxSetUVStream(uv+start);
 		IwGxSetColStream(0);

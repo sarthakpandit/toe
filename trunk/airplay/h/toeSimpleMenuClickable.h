@@ -4,12 +4,24 @@
 #include <IwManagedList.h>
 #include "string"
 #include "toeSimpleMenuItem.h"
+#include "toeSimpleMenuRoot.h"
 
 namespace TinyOpenEngine
 {
 	class CtoeSimpleMenuClickable : public CtoeSimpleMenuItem
 	{
-	private:
+		class CtoeSimpleMenuLazyClick: public CtoeSimpleMenuLazyEvent
+		{
+			CtoeSimpleMenuClickable* m_c;
+		public:
+			CtoeSimpleMenuLazyClick(CtoeSimpleMenuClickable*c):m_c(c){}
+			virtual void Send(){ 
+				if (m_c->onClick.size() > 0)
+					m_c->GetRoot()->Eval(m_c, m_c->onClick.c_str());
+			}
+		};
+
+	protected:
 		std::string onClick;
 	public:
 		//Declare managed class

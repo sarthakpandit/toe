@@ -2,6 +2,7 @@
 #include <IwGx.h>
 #include "TinyOpenEngine.h"
 #include "TinyOpenEngine.FreeType.h"
+#include "TinyOpenEngine.Net.h"
 #include "TinyOpenEngine.SimpleMenu.h"
 #include "toeScriptingSubsystem.h"
 #include "toeSimpleMenu.h"
@@ -12,6 +13,7 @@
 #include "toeSimpleMenuImage.h"
 #include "toeSimpleMenuBackground.h"
 #include "toeSimpleMenuImageCarousel.h"
+#include "toeSimpleMenuCompass.h"
 #include "toeSimpleMenuStyle.h"
 #include "toeSimpleMenuSlider.h"
 #include "toeSimpleMenuButton.h"
@@ -33,6 +35,7 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	isTinyOpenEngineSimpleMenuInitialized = true;
 
 	toeFreeTypeInit();
+	toeNetInit();
 
 	#ifdef IW_BUILD_RESOURCES
 	IwGetResManager()->AddHandler(new CtoeSimpleMenuRootResHandler);
@@ -53,6 +56,7 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	IW_CLASS_REGISTER(CtoeSimpleMenuSlider);
 	IW_CLASS_REGISTER(CtoeSimpleMenuButton);
 	IW_CLASS_REGISTER(CtoeSimpleMenuRow);
+	IW_CLASS_REGISTER(CtoeSimpleMenuCompass);
 	IW_CLASS_REGISTER(CtoeSimpleMenuGrid);
 
 	//void* test = ScriptTraits::Method("Test", &CtoeSimpleMenuItem::Test);
@@ -61,9 +65,9 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	toeRegisterClass(CtoeSimpleMenuItem::GetClassDescription());
 	toeRegisterClass(CtoeSimpleMenuButton::GetClassDescription());
 	toeRegisterClass(CtoeSimpleMenuTextBlock::GetClassDescription());
-	//toeRegisterClass(new TtoeScriptableClassDeclaration<CtoeSimpleMenuItem>("CtoeSimpleMenuItem",
-	//	new TtoeScriptableMethodDeclarationR<CtoeSimpleMenuItem,int>("Test", &CtoeSimpleMenuItem::Test),
-	//	0));
+	toeRegisterClass(CtoeSimpleMenuRoot::GetClassDescription());
+	//toeRegisterClass(CtoeSimpleMenuCompass::GetClassDescription());
+
 }
 
 void TinyOpenEngine::toeSimpleMenuTerminate()
@@ -73,6 +77,7 @@ void TinyOpenEngine::toeSimpleMenuTerminate()
 	isTinyOpenEngineSimpleMenuInitialized = false;
 
 	toeFreeTypeTerminate();
+	toeNetTerminate();
 }
 
 void TinyOpenEngine::toeDrawSimpleMenuScrollbar(const CIwSVec2 & pos,const CIwSVec2 & size,const CIwSVec2 & spos,const CIwSVec2 & ssize)

@@ -55,10 +55,19 @@ namespace TinyOpenEngine
 	class CtoeCompass: public CtoeFeature
 	{
 	public: 
+		~CtoeCompass();
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
 
 		static bool IsAvailable();
+
+		static int GetX();
+		static int GetY();
+		static int GetZ();
+	protected:
+		static CtoeCompass* RequestFeature();
+		virtual void StartFeature();
+		virtual void StopFeature();
 	};
 	class CtoeLocation: public CtoeFeature
 	{

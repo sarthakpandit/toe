@@ -37,7 +37,6 @@ CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
 		utf8string= 0;
 	}
 }
-
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuTextBlock::Serialise ()
 {
@@ -132,7 +131,7 @@ void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 	RenderBackgroud(renderContext);
 	RenderBorder(renderContext);
 	CIwSVec2 p = GetOrigin()+CIwSVec2(GetMarginLeft()+GetPaddingLeft(),GetMarginTop()+GetPaddingTop());
-	layoutData.RenderAt(p,renderContext->transformation,combinedStyle.FontColor);
+	layoutData.RenderAt(p,renderContext->viewportSize,renderContext->transformation,combinedStyle.FontColor);
 	
 }
 void CtoeSimpleMenuTextBlock::RearrangeChildItems()

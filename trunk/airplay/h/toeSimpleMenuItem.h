@@ -7,6 +7,7 @@
 #include <toeFreeTypeFont.h>
 #include <toeSimpleMenuStyle.h>
 #include <toeSimpleMenuStyleSheet.h>
+#include <toeIntrusiveList.h>
 #include <toeScriptingSubsystem.h>
 
 namespace TinyOpenEngine
@@ -25,10 +26,19 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuStyleSheet* styleSheet;
 		CIwSVec2 viewportPos;
 		CIwSVec2 viewportSize;
-		CIwMat2D transformation;
-		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0),transformation(CIwMat2D::g_Identity){};
+		CIwMat transformation;
+		toeSimpleMenuItemContext():parentStyle(0),styleSheet(0),transformation(CIwMat::g_Identity){};
 	};
 	class CtoeSimpleMenuRoot;
+
+	class CtoeSimpleMenuLazyEvent: public TtoeIntrusiveListItem<CtoeSimpleMenuLazyEvent,CtoeSimpleMenuItem>,public TtoeIntrusiveListItem<CtoeSimpleMenuLazyEvent>
+	{
+	public:
+		virtual ~CtoeSimpleMenuLazyEvent(){}
+		virtual void Send(){}
+	};
+
+
 	class CtoeSimpleMenuItem : public CIwManaged
 	{
 	protected:
@@ -44,6 +54,7 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuItem*parent;
 		CtoeSimpleMenuStyle style;
 		CtoeSimpleMenuStyleSettings combinedStyle;
+		TtoeIntrusiveList<CtoeSimpleMenuLazyEvent,CtoeSimpleMenuItem> lazyEvents;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuItem);
@@ -128,6 +139,7 @@ namespace TinyOpenEngine
 		void RenderBackgroud(toeSimpleMenuItemContext* renderContext);
 		void RenderShadow(toeSimpleMenuItemContext* renderContext);
 		void RenderBorder(toeSimpleMenuItemContext* renderContext);
+		void SendLazyEvent(CtoeSimpleMenuLazyEvent*);
 	public:
 #ifdef IW_BUILD_RESOURCES
 		//Parses from text file: start block.

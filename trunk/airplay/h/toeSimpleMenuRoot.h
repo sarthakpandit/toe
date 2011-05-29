@@ -14,6 +14,9 @@ namespace TinyOpenEngine
 	//class CtoeSimpleMenuItem;
 	class CtoeSimpleMenuRoot : public CIwResource
 	{
+		friend class CtoeSimpleMenuItem;
+
+		std::string onLoad;
 		std::string onUpdate;
 	protected:
 		CIwManagedList childItems;
@@ -31,6 +34,7 @@ namespace TinyOpenEngine
 		TouchContext* activeTouch;
 		CtoeSimpleMenuItem* activeItem;
 		CtoeSimpleMenu*simpleMenu;
+		TtoeIntrusiveList<CtoeSimpleMenuLazyEvent> lazyEvents;
 	public:
 		//Declare managed class
 		IW_MANAGED_DECLARE(CtoeSimpleMenuRoot);

@@ -75,7 +75,10 @@ CtoeSimpleMenuRoot::~CtoeSimpleMenuRoot()
 CtoeScriptableClassDeclaration* CtoeSimpleMenuRoot::GetClassDescription()
 {
 	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuRoot> d ("CtoeSimpleMenuRoot",
-//			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuRoot::GetRoot),
+			ScriptTraits::Method("GetContent", &CtoeSimpleMenuRoot::GetContent),
+			ScriptTraits::Method("GetHeader", &CtoeSimpleMenuRoot::GetHeader),
+			ScriptTraits::Method("GetFooter", &CtoeSimpleMenuRoot::GetFooter),
+			ScriptTraits::Method("GetItemById", &CtoeSimpleMenuRoot::GetItemById),
 			0);
 	return &d;
 }
@@ -87,6 +90,7 @@ void CtoeSimpleMenuRoot::Serialise ()
 	style.Serialise();
 	IwSerialiseUInt32(styleSheetHash);
 	toeSerialiseString(onUpdate);
+	toeSerialiseString(onLoad);
 	if (IwSerialiseIsReading())
 	{
 		if (styleSheetHash)
@@ -115,8 +119,8 @@ void CtoeSimpleMenuRoot::Render()
 	int16 w = IwGxGetScreenWidth();
 	int16 h = IwGxGetScreenHeight();
 	renderContext.viewportSize = CIwSVec2(w,h);
-	//renderContext.transformation.SetRot(IW_GEOM_ONE/8, CIwVec2(w/2,h/2));
-	styleSettings.Background.Render(CIwSVec2::g_Zero,CIwSVec2(w,h), renderContext.transformation);
+	//renderContext.transformation.SetRotY(IW_GEOM_ONE/16);
+	styleSettings.Background.Render(CIwSVec2::g_Zero,CIwSVec2(w,h), renderContext.viewportSize, renderContext.transformation);
 	
 	for (CIwManaged** i = childItems.GetBegin(); i!=childItems.GetEnd(); ++i)
 	{
@@ -201,8 +205,20 @@ void CtoeSimpleMenuRoot::Update(iwfixed dt)
 		content->SetOrigin(CIwSVec2(0,contentAreaOffset+contentOffset));
 	}
 
+	while (lazyEvents.GetFirstChild())
+	{
+		CtoeSimpleMenuLazyEvent* e = lazyEvents.GetFirstChild();
+		((TtoeIntrusiveListItem<CtoeSimpleMenuLazyEvent>*)e)->Detach();
+		((TtoeIntrusiveListItem<CtoeSimpleMenuLazyEvent,CtoeSimpleMenuRoot>*)e)->Detach();		
+		e->Send();
+		delete e;
+	}
+
+
 	if (onUpdate.size() > 0)
 		simpleMenu->Eval(this, this->GetInstanceClassDescription(), onUpdate.c_str());
+
+
 }
 void CtoeSimpleMenuRoot::AlignBlocks()
 {
@@ -341,6 +357,8 @@ void CtoeSimpleMenuRoot::ScrollToItem(CtoeSimpleMenuItem*i)
 void CtoeSimpleMenuRoot::Initialize(CtoeSimpleMenu*simpleMenuInstance)
 {
 	simpleMenu = simpleMenuInstance;
+	if (onLoad.size() > 0)
+		simpleMenu->Eval(this, this->GetInstanceClassDescription(), onLoad.c_str());
 }
 void CtoeSimpleMenuRoot::Eval(CtoeSimpleMenuItem*item, const char*s)
 {
@@ -445,6 +463,11 @@ bool	CtoeSimpleMenuRoot::ParseAttribute(CIwTextParserITX* pParser, const char* p
 	if (!stricmp(pAttrName, "onupdate"))
 	{
 		toeReadString(pParser, &onUpdate);
+		return true;
+	}
+	if (!stricmp(pAttrName, "onload"))
+	{
+		toeReadString(pParser, &onLoad);
 		return true;
 	}
 	return CIwResource::ParseAttribute(pParser, pAttrName);
