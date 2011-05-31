@@ -16,17 +16,28 @@ IW_CLASS_FACTORY(CtoeSimpleMenuTextBlock);
 //This macro is required within some source file for every class derived from CIwManaged. It implements essential functionality
 IW_MANAGED_IMPLEMENT(CtoeSimpleMenuTextBlock);
 
+//Get scriptable class declaration
+CtoeScriptableClassDeclaration* CtoeSimpleMenuTextBlock::GetClassDescription()
+{
+	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuTextBlock> d ("CtoeSimpleMenuTextBlock",
+			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuTextBlock::GetRoot),
+			ScriptTraits::Method("GetText", &CtoeSimpleMenuTextBlock::GetText),
+			ScriptTraits::Method("SetText", &CtoeSimpleMenuTextBlock::SetText),
+			0);
+	return &d;
+}
+
 //Constructor
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
 {
 	utf8string = 0;
-	//cachedWithCombinedStyle;
 	cachedWithWidth = -100;
 }
 //Constructor
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock(char*buf)
 {
 	utf8string = buf;
+	cachedWithWidth = -100;
 }
 //Desctructor
 CtoeSimpleMenuTextBlock::~CtoeSimpleMenuTextBlock()
@@ -67,16 +78,7 @@ void CtoeSimpleMenuTextBlock::Serialise ()
 		}
 	}
 }
-//Get scriptable class declaration
-CtoeScriptableClassDeclaration* CtoeSimpleMenuTextBlock::GetClassDescription()
-{
-	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuTextBlock> d ("CtoeSimpleMenuTextBlock",
-			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuTextBlock::GetRoot),
-			ScriptTraits::Method("GetText", &CtoeSimpleMenuTextBlock::GetText),
-			ScriptTraits::Method("SetText", &CtoeSimpleMenuTextBlock::SetText),
-			0);
-	return &d;
-}
+
 const char* CtoeSimpleMenuTextBlock::GetText() const
 {
 	return utf8string;
