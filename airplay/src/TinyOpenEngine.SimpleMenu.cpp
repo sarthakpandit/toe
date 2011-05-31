@@ -10,6 +10,7 @@
 #include "toeSimpleMenuItem.h"
 #include "toeSimpleMenuRoot.h"
 #include "toeSimpleMenuTextBlock.h"
+#include "toeSimpleMenuTextBox.h"
 #include "toeSimpleMenuImage.h"
 #include "toeSimpleMenuBackground.h"
 #include "toeSimpleMenuImageCarousel.h"
@@ -52,6 +53,7 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	IW_CLASS_REGISTER(CtoeSimpleMenuInputComponent);
 	IW_CLASS_REGISTER(CtoeSimpleMenuItem);
 	IW_CLASS_REGISTER(CtoeSimpleMenuTextBlock);
+	IW_CLASS_REGISTER(CtoeSimpleMenuTextBox);
 	IW_CLASS_REGISTER(CtoeSimpleMenuStyleSheet);
 	IW_CLASS_REGISTER(CtoeSimpleMenuSlider);
 	IW_CLASS_REGISTER(CtoeSimpleMenuButton);
