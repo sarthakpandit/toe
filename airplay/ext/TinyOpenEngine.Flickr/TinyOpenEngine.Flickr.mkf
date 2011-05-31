@@ -1,0 +1,15 @@
+includepaths
+{
+	"h"
+}
+files
+{
+	("src")
+	TinyOpenEngine.Flickr.cpp
+	("h")
+	TinyOpenEngine.Flickr.h
+}
+subprojects
+{
+	../../TinyOpenEngine.Net.mkf
+}
