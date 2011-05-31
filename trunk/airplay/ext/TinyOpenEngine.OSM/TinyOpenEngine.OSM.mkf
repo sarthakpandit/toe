@@ -1,0 +1,17 @@
+includepaths
+{
+	"h"
+}
+files
+{
+	("src")
+	TinyOpenEngine.OSM.cpp
+	toeOSM.cpp
+	("h")
+	TinyOpenEngine.OSM.h
+	toeOSM.h
+}
+subprojects
+{
+	../../TinyOpenEngine.Net.mkf
+}
