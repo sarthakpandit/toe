@@ -48,6 +48,16 @@ void CtoeCompass::StopFeature()
 {
 	s3eCompassStop();
 }
+int CtoeCompass::GetHeading()
+{
+	if (RequestFeature())
+	{
+		s3eCompassHeading dir;
+		s3eCompassGetHeading(&dir);
+		return dir.m_Heading;
+	}
+	return 0;
+}
 int CtoeCompass::GetX()
 {
 	if (RequestFeature())

@@ -7,10 +7,11 @@ files
 	("src")
 	TinyOpenEngine.Net.cpp
 	toeNet.cpp
-
+	toeQuery.cpp
 	("h")
 	TinyOpenEngine.Net.h
 	toeNet.h
+	toeQuery.h
 }
 subprojects
 {

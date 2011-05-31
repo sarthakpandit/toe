@@ -10,8 +10,6 @@ namespace TinyOpenEngine
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
 
-		static CIwManaged* GetResourceByName(const char* id,const char* type);
-
 		static std::string DownloadString(const char* s);
 	};
 }

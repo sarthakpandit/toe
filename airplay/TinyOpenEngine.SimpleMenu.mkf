@@ -26,6 +26,7 @@ files
 	toeSimpleMenuTerminalItem.cpp
 	toeSimpleMenuTextBlock.cpp
 	toeSimpleMenuCompass.cpp
+	toeSimpleMenuTextBox.cpp
 
 	[h]
 	("h")
@@ -49,6 +50,7 @@ files
 	toeSimpleMenuTerminalItem.h 
 	toeSimpleMenuTextBlock.h 
 	toeSimpleMenuCompass.h 
+	toeSimpleMenuTextBox.h
 }
 subprojects
 {

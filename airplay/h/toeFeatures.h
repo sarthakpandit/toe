@@ -61,6 +61,7 @@ namespace TinyOpenEngine
 
 		static bool IsAvailable();
 
+		static int GetHeading();
 		static int GetX();
 		static int GetY();
 		static int GetZ();
@@ -75,9 +76,10 @@ namespace TinyOpenEngine
 	public: 
 		private:
 		s3eLocation l;
-		time_t m_recievedAt;
+		time_t m_timestamp;
 
 	public: 
+		CtoeLocation();
 		virtual ~CtoeLocation();
 
 		//Get scriptable class declaration
@@ -85,6 +87,11 @@ namespace TinyOpenEngine
 		static bool IsAvailable();
 		static float GetLatitude();
 		static float GetLongitude();
+		static float GetAltitude();
+		static int GetTimeStamp();
+		static float EvalDistance(float lon1, float lat1, float lon2, float lat2);
+		static float GetHorizontalAccuracy();
+		static float GetVerticalAccuracy();
 	protected:
 		static CtoeLocation* RequestFeature();
 		static int32 Callback (void* systemData, void* userData);

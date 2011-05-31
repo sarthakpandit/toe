@@ -1,0 +1,17 @@
+includepaths
+{
+	"h"
+}
+files
+{
+	("src")
+	TinyOpenEngine.Pachube.cpp
+	toePachube.cpp
+	("h")
+	TinyOpenEngine.Pachube.h
+	toePachube.h
+}
+subprojects
+{
+	../../TinyOpenEngine.Net.mkf
+}

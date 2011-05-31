@@ -93,8 +93,13 @@ void TinyOpenEngine::toeTransformScreenSpace3D(CIwSVec2*begin,CIwSVec2*end,const
 		CIwVec3 v = t.TransformVec(CIwSVec3(a->x,a->y,0));
 		if (v.z != 0)
 		{
-			a->x = center.x+(a->x-center.x)*(screenSize.x)/(v.z+screenSize.x);
-			a->y = center.y+(a->y-center.y)*(screenSize.y)/(v.z+screenSize.y);
+			a->x = center.x+(v.x-center.x)*(screenSize.x)/(v.z+screenSize.x);
+			a->y = center.y+(v.y-center.y)*(screenSize.y)/(v.z+screenSize.y);
+		}
+		else
+		{
+			a->x = v.x;
+			a->y = v.y;
 		}
 	}
 }

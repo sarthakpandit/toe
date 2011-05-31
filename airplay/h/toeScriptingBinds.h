@@ -76,6 +76,39 @@ namespace TinyOpenEngine
 				return m(a1, FetchArgument<A2>(system));
 			}
 		};
+		template <typename R, typename A1, typename A2, typename A3> class ThreeArgFunction: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef R(* METHOD)(A1,A2,A3);
+		protected:
+			METHOD m;
+		public:
+			virtual bool IsStatic() const {return true;}
+			ThreeArgFunction(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				A1 a1 = FetchArgument<A1>(system);
+				A2 a2 = FetchArgument<A2>(system);
+				return m(a1, a2, FetchArgument<A3>(system));
+			}
+		};
+		template <typename R, typename A1, typename A2, typename A3, typename A4> class FourArgFunction: public CtoeScriptableMethodDeclaration
+		{
+		public:
+			typedef R(* METHOD)(A1,A2,A3,A4);
+		protected:
+			METHOD m;
+		public:
+			virtual bool IsStatic() const {return true;}
+			FourArgFunction(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
+			{
+				A1 a1 = FetchArgument<A1>(system);
+				A2 a2 = FetchArgument<A2>(system);
+				A3 a3 = FetchArgument<A3>(system);
+				return m(a1, a2,a3, FetchArgument<A4>(system));
+			}
+		};
 		template <class T, class R, typename mmm> class NoArgsMethod: public CtoeScriptableMethodDeclaration
 		{
 		public:
@@ -135,6 +168,14 @@ namespace TinyOpenEngine
 		template <typename R,typename A1,typename A2> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) (A1,A2))
 		{
 			return new MethodBase<R,TwoArgFunction<R,A1,A2> >(name,fn);
+		};
+		template <typename R,typename A1,typename A2,typename A3> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) (A1,A2,A3))
+		{
+			return new MethodBase<R,ThreeArgFunction<R,A1,A2,A3> >(name,fn);
+		};
+		template <typename R,typename A1,typename A2,typename A3,typename A4> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (*fn) (A1,A2,A3,A4))
+		{
+			return new MethodBase<R,FourArgFunction<R,A1,A2,A3,A4> >(name,fn);
 		};
 		template <class T, typename R> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn) ())
 		{
