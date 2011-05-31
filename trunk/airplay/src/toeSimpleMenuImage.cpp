@@ -63,6 +63,7 @@ void CtoeSimpleMenuImage::Prepare(toeSimpleMenuItemContext* renderContext,int16 
 		//CIwImage::Format f = texture->GetFormat();
 		material = new CIwMaterial();
 		material->SetTexture(texture);
+		material->SetCullMode(CIwMaterial::CULL_NONE);
 	}
 	rectSize = CIwSVec2::g_Zero;
 	if (texture)
@@ -110,7 +111,7 @@ void CtoeSimpleMenuImage::Render(toeSimpleMenuItemContext* renderContext)
 	CIwColour* col =IW_GX_ALLOC(CIwColour,4);
 	col[0] = col[1] = col[2] = col[3] = rectColour;
 
-	toeTransformScreenSpace3D(v,v+4,renderContext->transformation, renderContext->viewportSize);
+	toeTransformScreenSpace3D(v, v+4, renderContext->transformation, renderContext->viewportSize);
 
 	IwGxSetVertStreamScreenSpace(v,4);
 	IwGxSetColStream(col);

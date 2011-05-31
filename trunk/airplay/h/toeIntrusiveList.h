@@ -60,7 +60,7 @@ namespace TinyOpenEngine
 	};
 
 
-	template<class T,typename TAG> inline void TtoeIntrusiveListItem<T,TAG>::AttachHead(TtoeIntrusiveList<T,typename TAG>* list)
+	template<class T,typename TAG> inline void TtoeIntrusiveListItem<T,TAG>::AttachHead(TtoeIntrusiveList<T,TAG>* list)
 	{
 		Detach();
 		listContainer = list;

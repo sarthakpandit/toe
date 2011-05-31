@@ -5,11 +5,6 @@ option
 	strict
 	s3e-data-dir="../data" 
 }
-defines 
-{ 
-	FT2_BUILD_LIBRARY
-	PUGIXML_NO_STL
-} 
 assets
 {
 	(../data)
@@ -18,7 +13,10 @@ assets
 	(../data-ram/data-gles1)
 	./menu/mainmenu.group.bin
 }
-
+defines
+{
+	FT2_BUILD_LIBRARY
+}
 files
 {
 	[Source]
@@ -92,11 +90,15 @@ deployments
 	webos-icon="../content/icons/webos-icon.png"
 	webos-appid="com.101gr.com.drumkit"
 
+	symbian-locationsupport=1
+	symbian-osexecsupport=1
 	symbian-icon-svg="../content/icons/symbian-icon-svg.svg"
 	symbian-icon1="../content/icons/symbian-icon1.bmp"
 	symbian-icon1-mask="../content/icons/symbian-icon1-mask.bmp"
 	symbian-icon2="../content/icons/symbian-icon2.bmp"
 	symbian-icon2-mask="../content/icons/symbian-icon2-mask.bmp"
+	symbian-cert="../content/certs/symbian-cert.cer"
+	symbian-key="../content/certs/symbian-key.key"
 
 	uiq3-icon1="../content/icons/uiq3-icon1.bmp"
 	uiq3-icon2="../content/icons/uiq3-icon2.bmp"
@@ -120,6 +122,9 @@ subprojects
 	TinyOpenEngine.Lua.mkf
 	TinyOpenEngine.FreeType.mkf
 	TinyOpenEngine.SimpleMenu.mkf
+	TinyOpenEngine.Net.mkf
+	ext/TinyOpenEngine.OSM/TinyOpenEngine.OSM.mkf
+	ext/TinyOpenEngine.Pachube/TinyOpenEngine.Pachube.mkf
 	TinyOpenEngine.Scene3D.mkf
 	#TinyOpenEngine.Ortho25D.mkf
 	modules/box2d/trunk/Box2D/Box2D.mkf

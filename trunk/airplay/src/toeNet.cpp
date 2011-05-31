@@ -27,7 +27,7 @@ namespace TinyOpenEngine
 			Cancel();
 		}
 		bool IsActive() const { return isActive;}
-		char* GetResponseString() const { if (response.size() == 0) return ""; return &*response.begin();}
+		const char* GetResponseString() const { if (response.size() == 0) return ""; return &*response.begin();}
 		void Cancel()
 		{
 			if (isActive)
