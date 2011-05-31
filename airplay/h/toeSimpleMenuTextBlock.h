@@ -8,7 +8,7 @@ namespace TinyOpenEngine
 {
 	class CtoeSimpleMenuTextBlock : public CtoeSimpleMenuTerminalItem
 	{
-	private:
+	protected:
 		char* utf8string;
 		CtoeSimpleMenuStyleSettings cachedWithCombinedStyle;
 		int16 cachedWithWidth;
