@@ -126,16 +126,25 @@ namespace TinyOpenEngine
 		};
 		template <class T, class R, typename A, typename mmm> class OneArgsMethod: public CtoeScriptableMethodDeclaration
 		{
-		public:
-			typedef mmm METHOD;
-		protected:
-			METHOD m;
+		public:			typedef mmm METHOD;
+		protected:		METHOD m;
 		public:
 			OneArgsMethod(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
-			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance)
-			{
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance) {
 				T* i = ((T*)instance);
 				return (i->*m)(FetchArgument<A>(system));
+			}
+		};
+		template <class T, class R, typename A1, typename A2, typename mmm> class TwoArgsMethod: public CtoeScriptableMethodDeclaration
+		{
+		public:			typedef mmm METHOD;
+		protected:		METHOD m;
+		public:
+			TwoArgsMethod(const char* name, METHOD mm):CtoeScriptableMethodDeclaration(name),m(mm) {}
+			R MakeCall(ItoeScriptingSubsystem* system, CtoeScriptableClassDeclaration* cls, void* instance) {
+				T* i = ((T*)instance);
+				A1 a1 = FetchArgument<A1>(system);
+				return (i->*m)(a1, FetchArgument<A2>(system));
 			}
 		};
 		template <class R, class Caller> class MethodBase: public Caller
@@ -192,6 +201,14 @@ namespace TinyOpenEngine
 		template <class T, typename R,typename A> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn)  (A) const)
 		{
 			return new MethodBase<R,OneArgsMethod<T,R,A,R (T::*)  (A) const> >(name,fn);
+		};
+		template <class T, typename R,typename A1,typename A2> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn) (A1,A2))
+		{
+			return new MethodBase<R,TwoArgsMethod<T,R,A1,A2,R (T::*) (A1,A2)> >(name,fn);
+		};
+		template <class T, typename R,typename A1,typename A2> inline CtoeScriptableMethodDeclaration* Method(const char* name, R (T::*fn)  (A1,A2) const)
+		{
+			return new MethodBase<R,TwoArgsMethod<T,R,A1,A2,R (T::*)  (A1,A2) const> >(name,fn);
 		};
 	}
 	template <class T> class TtoeScriptableMethodDeclaration: public CtoeScriptableMethodDeclaration

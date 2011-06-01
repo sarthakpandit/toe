@@ -1,6 +1,7 @@
 #include <s3e.h>
 #include <IwGx.h>
 #include "TinyOpenEngine.h"
+#include "TinyOpenEngine.Net.h"
 #include "TinyOpenEngine.Pachube.h"
 #include "toePachube.h"
 
@@ -16,6 +17,8 @@ void TinyOpenEngine::toePachubeInit()
 		return;
 	isTinyOpenEnginePachubeInitialized = true;
 
+	TinyOpenEngine::toeNetInit();
+
 	toeRegisterClass(CtoePachube::GetClassDescription());
 }
 
@@ -24,4 +27,6 @@ void TinyOpenEngine::toePachubeTerminate()
 	if (!isTinyOpenEnginePachubeInitialized)
 		return;
 	isTinyOpenEnginePachubeInitialized = false;
+
+	TinyOpenEngine::toeNetTerminate();
 }

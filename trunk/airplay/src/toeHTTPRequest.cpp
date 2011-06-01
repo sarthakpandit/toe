@@ -33,6 +33,11 @@ void CtoeHTTPRequest::Cancel()
 	}
 }
 
+void CtoeHTTPRequest::AddHeader(const char* name,const char* val)
+{
+	transport.SetRequestHeader(name,val);
+}
+
 CIwHTTP& CtoeHTTPRequest::GetTransport() {return transport;}
 
 void CtoeHTTPRequest::OnError()
@@ -59,7 +64,6 @@ void CtoeHTTPRequest::OnChunkComplete()
 		OnError();
 		return;
 	}
-	response[transport.ContentReceived()] = 0;
 	if (transport.ContentReceived() != transport.ContentLength())
 	{
 		uint32 oldLen = responseSize;
@@ -73,6 +77,7 @@ void CtoeHTTPRequest::OnChunkComplete()
 	}
 	else
 	{
+		response[transport.ContentReceived()] = 0;
 		OnResponseComplete();
 	}
 }
@@ -80,7 +85,7 @@ void CtoeHTTPRequest::RawDownloadResponse()
 {
 	responseSize = transport.ContentExpected();
 	if (!responseSize) responseSize = 1024;
-	response.resize(responseSize);
+	response.resize(responseSize+1);
 	response[0] = 0;
 	transport.ReadDataAsync(&*response.begin(), 
 									responseSize,
@@ -97,6 +102,20 @@ int CtoeHTTPRequest::RawHeadersComplete(void*sys,void*http)
 {
 	((CtoeHTTPRequest*)http)->OnHeadersComplete();
 	return 0;
+}
+void CtoeHTTPRequest::RawPost(const char* gUrl)
+{
+	if (isActive)
+	{
+		IwAssertMsg(TOE,false,("Another request isn't complete yet"));
+		OnError();
+		return;
+	}
+	isActive = true;
+	if (S3E_RESULT_SUCCESS != transport.Post(gUrl, &*request.begin(), request.size(), RawHeadersComplete, this))
+	{
+		OnError();
+	}
 }
 void CtoeHTTPRequest::RawGet(const char* gUrl)
 {

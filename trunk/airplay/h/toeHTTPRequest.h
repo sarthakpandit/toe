@@ -11,6 +11,7 @@ namespace TinyOpenEngine
 		bool isActive;
 		CIwHTTP transport;
 		CIwArray<char> response;
+		CIwArray<char> request;
 		uint32 responseSize;
 	public:
 		CtoeHTTPRequest();
@@ -18,6 +19,7 @@ namespace TinyOpenEngine
 		bool IsActive() const;
 		const char* GetResponseString() const;
 		void Cancel();
+		void AddHeader(const char*,const char*);
 
 		CIwHTTP& GetTransport();
 
@@ -30,5 +32,6 @@ namespace TinyOpenEngine
 		static int RawChunkComplete(void*sys,void*http);
 		static int RawHeadersComplete(void*sys,void*http);
 		void RawGet(const char* gUrl);
+		void RawPost(const char* gUrl);
 	};
 }

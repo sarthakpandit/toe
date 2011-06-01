@@ -5,9 +5,16 @@
 
 namespace TinyOpenEngine
 {
+	class CtoeQueryRequest: public CtoeHTTPRequest
+	{
+	public:
+		void Get(const char*);
+		void Post(const char*);
+	};
 	class CtoeQuery
 	{
-		CtoeHTTPRequest request;
+		CtoeQueryRequest request;
+		std::string url;
 	public:
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
@@ -15,5 +22,15 @@ namespace TinyOpenEngine
 		CtoeQuery();
 
 		virtual ~CtoeQuery();
+
+		void AddHeader(const char*,const char*);
+		void SetArgument(const char*,const char*);
+		void SetUrl(const char*);
+		void Get();
+		void Post();
+		void Wait();
+	protected:
+		void BuildGetUrl(std::string & s);
+		void BuildPostRequestBody();
 	};
 }

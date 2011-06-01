@@ -6,6 +6,7 @@
 #include "toeSimpleMenuTextBlock.h"
 #include "toeSimpleMenuImage.h"
 #include "TinyOpenEngine.FreeType.h"
+#include "toeSimpleMenu.h"
 
 using namespace TinyOpenEngine;
 
@@ -28,6 +29,8 @@ CtoeSimpleMenuItem::CtoeSimpleMenuItem()
 	styleClass = TOE_ANYSTYLE;
 	state = TOE_ANYSTYLE;
 	idHash = 0;
+	root = 0;
+	parent = 0;
 }
 //Desctructor
 CtoeSimpleMenuItem::~CtoeSimpleMenuItem()
@@ -41,6 +44,8 @@ CtoeScriptableClassDeclaration* CtoeSimpleMenuItem::GetClassDescription()
 {
 	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuItem> d ("CtoeSimpleMenuItem",
 			ScriptTraits::Method("GetRoot", &CtoeSimpleMenuItem::GetRoot),
+			ScriptTraits::Method("GetParent", &CtoeSimpleMenuItem::GetParent),
+			ScriptTraits::Method("GetMenuContainer", &CtoeSimpleMenuItem::GetMenuContainer),
 			ScriptTraits::Method("GetChildAt", &CtoeSimpleMenuItem::GetChildAt),
 			ScriptTraits::Method("GetChildItemsCount", &CtoeSimpleMenuItem::GetChildItemsCount),
 			
@@ -61,6 +66,7 @@ void CtoeSimpleMenuItem::Serialise ()
 	IwSerialiseUInt32(idHash);
 }
 
+CtoeSimpleMenu*CtoeSimpleMenuItem::GetMenuContainer()const{return root->GetMenu();}
 
 void CtoeSimpleMenuItem::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
 {

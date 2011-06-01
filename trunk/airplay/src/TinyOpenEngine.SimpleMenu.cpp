@@ -67,6 +67,7 @@ void TinyOpenEngine::toeSimpleMenuInit()
 	toeRegisterClass(CtoeSimpleMenuItem::GetClassDescription());
 	toeRegisterClass(CtoeSimpleMenuButton::GetClassDescription());
 	toeRegisterClass(CtoeSimpleMenuTextBlock::GetClassDescription());
+	toeRegisterClass(CtoeSimpleMenuTextBox::GetClassDescription());
 	toeRegisterClass(CtoeSimpleMenuRoot::GetClassDescription());
 	//toeRegisterClass(CtoeSimpleMenuCompass::GetClassDescription());
 
