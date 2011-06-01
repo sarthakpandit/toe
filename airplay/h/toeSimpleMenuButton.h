@@ -21,6 +21,7 @@ namespace TinyOpenEngine
 		//Desctructor
 		virtual ~CtoeSimpleMenuButton();
 
+		//Get tree element name hash
 		virtual uint32 GetElementNameHash();
 	};
 }

@@ -26,6 +26,12 @@ CtoeScriptableClassDeclaration* CtoeSimpleMenuTextBlock::GetClassDescription()
 			0);
 	return &d;
 }
+//Get tree element name hash
+uint32 CtoeSimpleMenuTextBlock::GetElementNameHash()
+{
+	static uint32 name = IwHashString("TEXTBLOCK");
+	return name;
+}
 
 //Constructor
 CtoeSimpleMenuTextBlock::CtoeSimpleMenuTextBlock()
@@ -86,6 +92,13 @@ const char* CtoeSimpleMenuTextBlock::GetText() const
 void CtoeSimpleMenuTextBlock::SetText(const char* t)
 {
 	cachedWithCombinedStyle = CtoeSimpleMenuStyleSettings();
+	if (!t && !utf8string)
+		return;
+	if (!(!t || !utf8string))
+	{
+		if (!strcmp(t,utf8string))
+			return;
+	}
 	if (utf8string)
 	{
 		delete utf8string;
@@ -96,6 +109,7 @@ void CtoeSimpleMenuTextBlock::SetText(const char* t)
 		utf8string = new char[strlen(t)+1];
 		strcpy(utf8string,t);
 	}
+	OnTextChanged();
 }
 
 void CtoeSimpleMenuTextBlock::Prepare(toeSimpleMenuItemContext* renderContext,int16 width)
@@ -139,6 +153,9 @@ void CtoeSimpleMenuTextBlock::Render(toeSimpleMenuItemContext* renderContext)
 void CtoeSimpleMenuTextBlock::RearrangeChildItems()
 {
 	CtoeSimpleMenuTerminalItem::RearrangeChildItems();
+}
+void CtoeSimpleMenuTextBlock::OnTextChanged()
+{
 }
 #ifdef IW_BUILD_RESOURCES
 

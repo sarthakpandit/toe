@@ -61,6 +61,7 @@ namespace TinyOpenEngine
 		CtoeSimpleMenuItem* GetContent() const { return (childItems.GetSize() > 0)?static_cast<CtoeSimpleMenuItem*>(childItems[0]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* GetHeader() const { return (childItems.GetSize() > 1)?static_cast<CtoeSimpleMenuItem*>(childItems[1]):(CtoeSimpleMenuItem*)0;}
 		CtoeSimpleMenuItem* GetFooter() const { return (childItems.GetSize() > 2)?static_cast<CtoeSimpleMenuItem*>(childItems[2]):(CtoeSimpleMenuItem*)0;}
+		CtoeSimpleMenu* GetMenu() const { return simpleMenu; }
 		CtoeSimpleMenuItem* GetItemById(const char*) const;
 		CtoeSimpleMenuItem* GetItemByHash(uint32 h) const;
 		CtoeSimpleMenuItem* FindActiveItemAt(const CIwVec2 & coord);

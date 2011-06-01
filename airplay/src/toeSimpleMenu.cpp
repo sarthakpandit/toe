@@ -17,6 +17,15 @@ namespace TinyOpenEngine
 {
 }
 
+//Get scriptable class declaration
+CtoeScriptableClassDeclaration* CtoeSimpleMenu::GetClassDescription()
+{
+	static  TtoeScriptableClassDeclaration<CtoeSimpleMenu> d ("CtoeSimpleMenu",
+			//ScriptTraits::Method("GetChildItemsCount", &CtoeSimpleMenu::GetChildItemsCount),
+			
+			0);
+	return &d;
+}
 
 //Constructor
 CtoeSimpleMenu::CtoeSimpleMenu()

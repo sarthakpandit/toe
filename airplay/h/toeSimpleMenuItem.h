@@ -13,6 +13,7 @@
 namespace TinyOpenEngine
 {
 	class CtoeSimpleMenuItem;
+	class CtoeSimpleMenu;
 
 	class ItoeSimpleMenuVisitor
 	{
@@ -62,6 +63,8 @@ namespace TinyOpenEngine
 		static CtoeScriptableClassDeclaration* GetClassDescription();
 		//Get scriptable class declaration
 		virtual CtoeScriptableClassDeclaration* GetInstanceClassDescription() {return GetClassDescription(); };
+		//Get tree element name hash
+		virtual uint32 GetElementNameHash();
 
 		//Constructor
 		CtoeSimpleMenuItem();
@@ -109,6 +112,7 @@ namespace TinyOpenEngine
 		inline int16 GetContentOffsetTop()const {return GetMarginTop()+GetPaddingTop()+GetBorderTop();}
 		inline int16 GetContentOffsetBottom()const {return GetMarginBottom()+GetPaddingBottom()+GetBorderBottom();}
 
+		CtoeSimpleMenu*GetMenuContainer()const;
 		inline CtoeSimpleMenuRoot*GetRoot()const{return root;}
 		inline CtoeSimpleMenuItem*GetParent()const{return parent;}
 		inline CtoeSimpleMenuItem*GetChildAt(int i)const{return static_cast<CtoeSimpleMenuItem*>(childItems[i]);}
@@ -118,7 +122,6 @@ namespace TinyOpenEngine
 		virtual void InheritStyle(CtoeSimpleMenuStyleSettings* parentSettings);
 		virtual void ApplyStyleSheet(CtoeSimpleMenuStyleSheet* styleSheet);
 		virtual void ApplyStyle(CtoeSimpleMenuStyle* style);
-		virtual uint32 GetElementNameHash();
 		virtual uint32 GetElementClassHash();
 		virtual uint32 GetElementStateHash();
 		uint32 GetElementIdHash() { return idHash; }

@@ -1,6 +1,7 @@
 #include <IwTextParserITX.h>
 #include <IwResManager.h>
 #include <IwGx.h>
+#include <toeUtils.h>
 #include "TinyOpenEngine.h"
 #include "toeSimpleMenuTextBox.h"
 #include "toeSimpleMenuRoot.h"
@@ -36,13 +37,30 @@ CtoeSimpleMenuTextBox::CtoeSimpleMenuTextBox()
 CtoeSimpleMenuTextBox::~CtoeSimpleMenuTextBox()
 {
 }
+//Get tree element name hash
+uint32 CtoeSimpleMenuTextBox::GetElementNameHash()
+{
+	static uint32 name = IwHashString("TEXTBOX");
+	return name;
+}
+
 //Reads/writes a binary file using @a IwSerialise interface.
 void CtoeSimpleMenuTextBox::Serialise ()
 {
 	CtoeSimpleMenuTextBlock::Serialise();
 	toeSerialiseString(onChanged);
 }
-
+void CtoeSimpleMenuTextBox::TouchReleased(TouchContext* touchContext)
+{
+	const char* s= CtoeUtils::ReadString("",utf8string);
+	if (s)
+		SetText(s);
+}
+void CtoeSimpleMenuTextBox::OnTextChanged()
+{
+	if (onChanged.size() != 0 && root)
+		root->Eval(this, onChanged.c_str());
+}
 #ifdef IW_BUILD_RESOURCES
 
 //Parses from text file: parses attribute/value pair.
