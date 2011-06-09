@@ -46,6 +46,8 @@ namespace TinyOpenEngine
 		virtual void UnhandledTouchMotionEvent(TouchContext* touchContext);
 		virtual void UnhandledKeyEvent(KeyContext* keyContext);
 		void Eval(void*item, CtoeScriptableClassDeclaration*d, const char*s);
+
+		void SetMenu(const char*);
 #ifdef IW_BUILD_RESOURCES
 
 		//Parses from text file: parses attribute/value pair.

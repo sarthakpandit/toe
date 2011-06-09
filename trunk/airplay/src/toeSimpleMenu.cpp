@@ -21,7 +21,7 @@ namespace TinyOpenEngine
 CtoeScriptableClassDeclaration* CtoeSimpleMenu::GetClassDescription()
 {
 	static  TtoeScriptableClassDeclaration<CtoeSimpleMenu> d ("CtoeSimpleMenu",
-			//ScriptTraits::Method("GetChildItemsCount", &CtoeSimpleMenu::GetChildItemsCount),
+			ScriptTraits::Method("SetMenu", &CtoeSimpleMenu::SetMenu),
 			
 			0);
 	return &d;
@@ -115,6 +115,20 @@ void CtoeSimpleMenu::Serialise ()
 	IwSerialiseUInt32(scriptSubsystemHash);
 }
 
+void CtoeSimpleMenu::SetMenu(const char* s)
+{
+	menulayout = IwHashString(s);
+	menu = (CtoeSimpleMenuRoot*)IwGetResManager()->GetResHashed(menulayout,"CtoeSimpleMenuRoot");
+	if (menu)
+	{
+		menu->Initialize(this);
+	}
+
+}
+//void CtoeSimpleMenu::CloseMenu()
+//{
+//	menu = 0;
+//}
 
 #ifdef IW_BUILD_RESOURCES
 

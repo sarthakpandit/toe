@@ -22,6 +22,7 @@ namespace TinyOpenEngine
 	bool exitApplication = false;
 	CIwStringL* nextWorld = 0;
 	uint32 nextWorldHash = 0;
+	TtoeIntrusiveList<CYieldHandler>* g_toeYieldHandlers = 0;
 	s3eSocket* g_toeTraceSocket=0;
 	CIwArray<CtoeScriptableClassDeclaration*>* toe_scriptClassDeclarations=0;
 	TtoeIntrusiveList<CtoeFeature> * toe_featuresList = 0;
@@ -66,6 +67,11 @@ namespace TinyOpenEngine
 	}
 	
 }
+TtoeIntrusiveList<CYieldHandler>* TinyOpenEngine::toeGetYieldHandlers()
+{
+	return g_toeYieldHandlers;
+}
+
 //Reads/writes a binary file using @a IwSerialise interface.
 void TinyOpenEngine::toeSerialiseString (std::string & s)
 {
@@ -130,15 +136,17 @@ bool TinyOpenEngine::toeIsTraceEnabled()
 }
 void TinyOpenEngine::toeInit()
 {
+	if (isTinyOpenEngineInitialized)
+		return;
+	isTinyOpenEngineInitialized = true;
+
 	IwGxInit();
 	IwResManagerInit();
 	IwGraphicsInit();
 
 	CtoeLoadingScreen::Render();
 
-	if (isTinyOpenEngineInitialized)
-		return;
-	isTinyOpenEngineInitialized = true;
+	g_toeYieldHandlers = new TtoeIntrusiveList<CYieldHandler>();
 
 	#ifdef IW_BUILD_RESOURCES
 	IwGetResManager()->AddHandler(new CtoeWorldResHandler);
@@ -192,6 +200,9 @@ void TinyOpenEngine::toeTerminate()
 	if (!isTinyOpenEngineInitialized)
 		return;
 	isTinyOpenEngineInitialized = false;
+
+	delete g_toeYieldHandlers;
+	g_toeYieldHandlers = 0;
 
 	CtoeConfig::Save();
 	CtoeConfig::Close();
@@ -303,6 +314,21 @@ void TinyOpenEngine::toeCloseWorld()
 	CtoeWorld* w = inputFilter->GetCurrentWorld();
 	w->Close();
 }
+void TinyOpenEngine::toeDeviceYield(int32 ms)
+{
+	s3eDeviceYield(ms);
+	TtoeIntrusiveList<CYieldHandler>* h = toeGetYieldHandlers();
+	if (h)
+	{
+		CYieldHandler* c = h->GetFirstChild();
+		while (c)
+		{
+			CYieldHandler* n = c->GetNext();
+			c->OnYield();
+			c = n;
+		}
+	}
+}
 void TinyOpenEngine::toeRunWorld(CtoeWorld*w)
 {
 	if (!w) return;
@@ -325,13 +351,13 @@ void TinyOpenEngine::toeRunWorld(CtoeWorld*w)
 		if (dt > preferedFrameTime*2) dt = preferedFrameTime*2;
 		if (dt < preferedFrameTime)
 		{
-				s3eDeviceYield(preferedFrameTime-dt);
+				toeDeviceYield(preferedFrameTime-dt);
 				newFrame = (int32)s3eTimerGetMs();
 				dt = newFrame-prevFrame;
 		}
 		else
 		{
-			s3eDeviceYield(0);
+			toeDeviceYield(0);
 		}
 		prevFrame = newFrame;
 

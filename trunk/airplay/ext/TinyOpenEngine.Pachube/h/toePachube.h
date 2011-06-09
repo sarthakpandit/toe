@@ -6,6 +6,8 @@ namespace TinyOpenEngine
 {
 	class CtoePachubeFeeds
 	{
+		//Get scriptable class declaration
+		static CtoeScriptableClassDeclaration* GetClassDescription();
 	};
 
 	class CtoePachube

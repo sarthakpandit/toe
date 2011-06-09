@@ -9,7 +9,11 @@ namespace TinyOpenEngine
 	public:
 		//Get scriptable class declaration
 		static CtoeScriptableClassDeclaration* GetClassDescription();
-		static int GetLongitude(float l, int z);
-		static int GetLatitude(float l, int z);
+		static int ConvertLongitude(float l, int z);
+		static int ConvertLatitude(float l, int z);
+		static int GetLongitudeAt(int z);
+		static int GetLatitudeAt(int z);
+		static int GetLongitude();
+		static int GetLatitude();
 	};
 }

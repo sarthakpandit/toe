@@ -40,6 +40,7 @@
 
 //Ariplay SDK
 #define FT2_BUILD_LIBRARY 1
+#define FT_CONFIG_OPTION_SYSTEM_ZLIB 1
 
 #include <ft2build.h>
 #include FT_CONFIG_OPTIONS_H

@@ -3,36 +3,16 @@
 #include "toeNet.h"
 #include "toeLoadingScreen.h"
 #include "toeUtils.h"
-#include "toeHTTPRequest.h"
+#include "toeWebRequest.h"
 
 
 using namespace TinyOpenEngine;
 
 namespace TinyOpenEngine
 {
-	class CtoeHTTPDownloadString: public CtoeHTTPRequest
+	class CtoeHTTPDownloadString: public CtoeBufferedWebRequest
 	{
 	public:
-		void Get(const char* s)
-		{
-			RawGet(s);
-		}
-	/*protected:
-		virtual void OnResponseComplete()
-		{
-			CtoeLoadingScreen::Render();
-			CtoeHTTPRequest::OnResponseComplete();
-		}
-		virtual void OnHeadersComplete()
-		{
-			CtoeLoadingScreen::Render();
-			CtoeHTTPRequest::OnHeadersComplete();
-		}
-		virtual void OnChunkComplete()
-		{
-			CtoeLoadingScreen::Render();
-			CtoeHTTPRequest::OnChunkComplete();
-		}*/
 	};
 }
 
@@ -57,11 +37,8 @@ int32 toeSendHTTPGetComplete(void* systemData, void* userData)
 std::string CtoeNet::DownloadString(const char* s1)
 {
 	CtoeHTTPDownloadString http;
-	http.Get(s1);
-	while (http.IsActive())
-	{
-		CtoeLoadingScreen::Render();
-		s3eDeviceYield(30);
-	}
+	http.SetURL(s1);
+	http.Start();
+	http.Wait();
 	return std::string(http.GetResponseString());
 }

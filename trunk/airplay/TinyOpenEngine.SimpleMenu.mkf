@@ -27,6 +27,7 @@ files
 	toeSimpleMenuTextBlock.cpp
 	toeSimpleMenuCompass.cpp
 	toeSimpleMenuTextBox.cpp
+	toeSimpleMenuSelect.cpp
 
 	[h]
 	("h")
@@ -51,10 +52,11 @@ files
 	toeSimpleMenuTextBlock.h 
 	toeSimpleMenuCompass.h 
 	toeSimpleMenuTextBox.h
+	toeSimpleMenuSelect.h
 }
 subprojects
 {
 	./TinyOpenEngine.mkf
 	./TinyOpenEngine.FreeType.mkf
-	./TinyOpenEngine.Net.mkf
+	./ext/TinyOpenEngine.Net/TinyOpenEngine.Net.mkf
 }
