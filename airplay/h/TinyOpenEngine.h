@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <toeIntrusiveList.h>
 
 class CIwTextParserITX;
 
@@ -9,6 +10,7 @@ namespace TinyOpenEngine
 	class CtoeWorld;
 	class ItoeScriptingSubsystem;
 	class CtoeScriptableClassDeclaration;
+	class CYieldHandler: public TtoeIntrusiveListItem<CYieldHandler> { public: virtual void OnYield() = 0; };
 
 	void toeInit();
 	void toeTerminate();
@@ -19,6 +21,8 @@ namespace TinyOpenEngine
 	void toeTrace(const char*, ...);
 	bool toeIsTraceEnabled();
 	void toeRegisterClass(CtoeScriptableClassDeclaration*);
+	TtoeIntrusiveList<CYieldHandler>* toeGetYieldHandlers();
+	void toeDeviceYield(int32 ms);
 	void toeRegisterScriptableClasses(ItoeScriptingSubsystem*);
 
 	void toeSerialiseString(std::string & s);

@@ -7,11 +7,13 @@ files
 	("src")
 	TinyOpenEngine.OSM.cpp
 	toeOSM.cpp
+	toeXapiResult.cpp
 	("h")
 	TinyOpenEngine.OSM.h
 	toeOSM.h
+	toeXapiResult.h
 }
 subprojects
 {
-	../../TinyOpenEngine.Net.mkf
+	../TinyOpenEngine.Net/TinyOpenEngine.Net.mkf
 }

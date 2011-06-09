@@ -2,6 +2,7 @@
 #include <IwHTTP.h>
 #include "toeNet.h"
 #include "toeLoadingScreen.h"
+#include <TinyOpenEngine.h>
 #include "toeUtils.h"
 #include "toeQuery.h"
 
@@ -31,7 +32,7 @@ CtoeQuery::~CtoeQuery()
 }
 void CtoeQuery::AddHeader(const char* name,const char* val)
 {
-	request.AddHeader(name,val);
+	request.AddHeaderValue(name,val);
 }
 void CtoeQuery::SetUrl(const char* s)
 {
@@ -39,11 +40,13 @@ void CtoeQuery::SetUrl(const char* s)
 }
 void CtoeQueryRequest::Get(const char* u)
 {
-	RawGet(u);
+	SetURL(u);
+	Start();
 }
 void CtoeQueryRequest::Post(const char* u)
 {
-	RawPost(u);
+	SetURL(u);
+	Start();
 }
 
 void CtoeQuery::Get()
@@ -59,11 +62,7 @@ void CtoeQuery::Post()
 }
 void CtoeQuery::Wait()
 {
-	while (request.IsActive())
-	{
-		CtoeLoadingScreen::Render();
-		s3eDeviceYield(30);
-	}
+	request.Wait();
 }
 void CtoeQuery::BuildGetUrl(std::string & s)
 {

@@ -1,0 +1,37 @@
+includepaths
+{
+	"h"
+}
+files
+{
+	("src")
+	TinyOpenEngine.Net.cpp
+	toeNet.cpp
+	toeQuery.cpp
+	#toeHTTPRequest.cpp
+	#toecURLRequest.cpp
+	toeWebRequest.cpp
+	oauth2.c
+	oauth.c
+	xmalloc.c
+	curl_request.c
+	#hash.c
+
+	("h")
+	TinyOpenEngine.Net.h
+	toeNet.h
+	toeQuery.h
+	#toeHTTPRequest.h
+	#toecURLRequest.h
+	toeWebRequest.h
+	oauth2.h
+	oauth.h
+	xmalloc.h
+	curl_request.h
+}
+subprojects
+{
+	IwHTTP
+	../../TinyOpenEngine.mkf
+	../../modules/libcurl-airplay/libcurl-airplay.mkf
+}

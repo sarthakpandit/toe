@@ -13,5 +13,5 @@ files
 }
 subprojects
 {
-	../../TinyOpenEngine.Net.mkf
+	../TinyOpenEngine.Net/TinyOpenEngine.Net.mkf
 }

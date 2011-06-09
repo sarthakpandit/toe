@@ -3,6 +3,13 @@ includepaths
 	"h"
 	"modules/freetype/include"
 }
+options
+{
+	module_path_append="$AIRPLAY_ROOT/modules/third_party"
+	strict=0
+	extension=start_configure
+}
+
 files
 {
 	[src]
@@ -167,4 +174,5 @@ files
 subprojects
 {
 	./TinyOpenEngine.mkf
+	zlib
 }

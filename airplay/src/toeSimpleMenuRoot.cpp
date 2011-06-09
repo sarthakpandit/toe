@@ -75,6 +75,7 @@ CtoeSimpleMenuRoot::~CtoeSimpleMenuRoot()
 CtoeScriptableClassDeclaration* CtoeSimpleMenuRoot::GetClassDescription()
 {
 	static  TtoeScriptableClassDeclaration<CtoeSimpleMenuRoot> d ("CtoeSimpleMenuRoot",
+			ScriptTraits::Method("GetMenu", &CtoeSimpleMenuRoot::GetMenu),
 			ScriptTraits::Method("GetContent", &CtoeSimpleMenuRoot::GetContent),
 			ScriptTraits::Method("GetHeader", &CtoeSimpleMenuRoot::GetHeader),
 			ScriptTraits::Method("GetFooter", &CtoeSimpleMenuRoot::GetFooter),

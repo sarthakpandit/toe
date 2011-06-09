@@ -122,7 +122,7 @@ subprojects
 	TinyOpenEngine.Lua.mkf
 	TinyOpenEngine.FreeType.mkf
 	TinyOpenEngine.SimpleMenu.mkf
-	TinyOpenEngine.Net.mkf
+	ext/TinyOpenEngine.Net/TinyOpenEngine.Net.mkf
 	ext/TinyOpenEngine.OSM/TinyOpenEngine.OSM.mkf
 	ext/TinyOpenEngine.Pachube/TinyOpenEngine.Pachube.mkf
 	TinyOpenEngine.Scene3D.mkf

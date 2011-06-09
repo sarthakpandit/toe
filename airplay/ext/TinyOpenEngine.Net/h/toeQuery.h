@@ -1,11 +1,11 @@
 #pragma once
 
 #include "toeScriptingSubsystem.h"
-#include "toeHTTPRequest.h"
+#include "toeWebRequest.h"
 
 namespace TinyOpenEngine
 {
-	class CtoeQueryRequest: public CtoeHTTPRequest
+	class CtoeQueryRequest: public CtoeWebRequest
 	{
 	public:
 		void Get(const char*);
